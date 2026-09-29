@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:jobisbe;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+jwt:
+  secret: test-secret-key-must-be-at-least-32-bytes-long
+  cookie-secure: false
+
+matching:
+  database-url: ""

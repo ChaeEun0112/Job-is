@@ -1,0 +1,17 @@
+.git
+.gitignore
+.github
+.gradle
+build
+out
+*.md
+.env
+*.pem
+application-dev.yml
+application-local.yml
+compose.yaml
+docker-compose*.yml
+Dockerfile
+.dockerignore
+.idea
+*.iml

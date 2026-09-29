@@ -1,0 +1,86 @@
+[
+  {
+    "id": "p1-newbie-frontend",
+    "label": "신입 프론트엔드",
+    "interest_roles": ["프론트엔드 개발자", "웹 개발자"],
+    "skills": ["React", "TypeScript", "JavaScript", "Next.js"],
+    "locations": ["서울"],
+    "career_years": 1,
+    "company_size_pref": ["스타트업", "벤처기업"],
+    "exclude": ["SI", "파견", "외주"],
+    "remote_ok": true,
+    "free_text": "React/TypeScript로 실제 서비스를 만들어보고 싶은 신입입니다. 성장 빠른 스타트업에서 시니어에게 배우고 싶고, SI·파견은 피하고 싶어요."
+  },
+  {
+    "id": "p2-senior-backend",
+    "label": "시니어 백엔드",
+    "interest_roles": ["백엔드 개발자", "서버 개발자"],
+    "skills": ["Java", "Spring Boot", "AWS", "Kubernetes", "MSA", "MySQL"],
+    "locations": ["서울", "경기"],
+    "career_years": 7,
+    "company_size_pref": ["중견기업", "대기업"],
+    "exclude": ["SI", "파견"],
+    "remote_ok": false,
+    "free_text": "대규모 트래픽·MSA 설계 경험을 살릴 수 있는 곳을 찾습니다. 안정적인 중견 이상 규모를 선호하고, SI/파견성 포지션은 제외하고 싶어요."
+  },
+  {
+    "id": "p3-ml-engineer",
+    "label": "ML 엔지니어",
+    "interest_roles": ["머신러닝 엔지니어", "AI 소프트웨어 개발자", "데이터 엔지니어"],
+    "skills": ["Python", "PyTorch", "Tensorflow", "MLOps", "CUDA"],
+    "locations": ["서울"],
+    "career_years": 3,
+    "company_size_pref": ["스타트업", "벤처기업", "중견기업"],
+    "exclude": [],
+    "remote_ok": true,
+    "free_text": "딥러닝 모델을 실제 프로덕션에 배포하는 일을 하고 싶습니다. 컴퓨터비전이나 LLM 응용에 관심이 많아요."
+  },
+  {
+    "id": "sb",
+    "label": "완벽주의 타입",
+    "interest_roles": ["프론트엔드 개발자", "웹 개발자"],
+    "skills": ["React", "TypeScript", "JavaScript"],
+    "locations": ["서울"],
+    "career_years": 1,
+    "company_size_pref": ["스타트업"],
+    "exclude": ["SI", "파견"],
+    "remote_ok": true,
+    "free_text": "안정된 울타리 안에서 균형 있게 일하고 싶어요."
+  },
+  {
+    "id": "sf",
+    "label": "일잘러 타입",
+    "interest_roles": ["백엔드 개발자", "풀스택 개발자"],
+    "skills": ["Java", "Spring Boot", "SQL"],
+    "locations": ["서울", "경기"],
+    "career_years": 3,
+    "company_size_pref": ["중견기업", "대기업"],
+    "exclude": ["SI"],
+    "remote_ok": false,
+    "free_text": "탄탄한 조직에서 성과로 인정받고 싶어요."
+  },
+  {
+    "id": "cb",
+    "label": "이너피스 타입",
+    "interest_roles": ["개발자"],
+    "skills": ["Python", "JavaScript"],
+    "locations": ["서울"],
+    "career_years": 2,
+    "company_size_pref": ["스타트업", "벤처기업"],
+    "exclude": [],
+    "remote_ok": true,
+    "free_text": "자유로운 분위기에서 나만의 페이스로 일하고 싶어요."
+  },
+  {
+    "id": "cf",
+    "label": "오너 타입",
+    "interest_roles": ["팀리드", "엔지니어"],
+    "skills": ["Java", "Go", "Kubernetes"],
+    "locations": ["서울"],
+    "career_years": 5,
+    "company_size_pref": ["스타트업", "중견기업"],
+    "exclude": [],
+    "remote_ok": true,
+    "free_text": "빠르게 크는 곳에서 주도적으로 일하고 싶어요."
+  }
+]

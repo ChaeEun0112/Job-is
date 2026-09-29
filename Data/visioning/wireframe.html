@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Job.is — 와이어프레임 보드 (Lo-fi · Desktop)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#222; --ln:#3a3a3a; --ln2:#9a9a9a; --ln3:#cfcfcf;
+  --mut:#777; --fill:#ececec; --fill2:#f6f6f6; --paper:#fff;
+  --canvas:#e9e9ec;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;color:var(--ink);background:var(--canvas)}
+
+/* ===== 보드 헤더 ===== */
+.board-head{padding:22px 40px 16px;border-bottom:1px solid var(--ln3);background:#fff}
+.board-head h1{font-size:20px;font-weight:800}
+.board-head .meta{color:var(--mut);font-size:13px;margin-top:4px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
+.legend .item{display:flex;align-items:center;gap:7px;font-size:12px;color:#444;border:1px solid var(--ln3);border-radius:6px;padding:5px 9px;background:#fafafa}
+.lg-ph{width:20px;height:14px;border:1px solid var(--ln2);background:
+  linear-gradient(to top right,transparent calc(50% - .6px),var(--ln2) 50%,transparent calc(50% + .6px)),
+  linear-gradient(to top left,transparent calc(50% - .6px),var(--ln2) 50%,transparent calc(50% + .6px))}
+.lg-bar{width:24px;height:7px;background:var(--ln3);border-radius:3px}
+.lg-pin{width:16px;height:16px;border-radius:50%;background:var(--ln);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.lg-flow{width:24px;height:0;border-top:3px solid var(--ln)}
+.lg-lead{width:24px;height:0;border-top:2px dashed var(--ln2)}
+
+/* ===== 캔버스 ===== */
+.canvas{position:relative;width:2680px;height:3260px;margin:0 auto;
+  background-image:radial-gradient(#d6d6da 1.2px,transparent 1.2px);
+  background-size:26px 26px}
+.wires{position:absolute;left:0;top:0;z-index:5;pointer-events:none;overflow:visible}
+.wires .flow{stroke:var(--ln);stroke-width:3}
+.wires .lead{stroke:var(--ln2);stroke-width:1.5;stroke-dasharray:5 4}
+.flowlabel{position:absolute;z-index:9;transform:translate(-50%,-50%);
+  background:#fff;border:1.5px solid var(--ln);border-radius:14px;
+  padding:4px 11px;font-size:12px;font-weight:700;color:#333;white-space:nowrap}
+
+/* ===== 유닛 / 프레임 ===== */
+.unit{position:absolute}
+.ftitle{font-size:13px;font-weight:800;color:#333;margin:0 0 8px 2px;letter-spacing:.2px}
+.ftitle .dim{color:var(--mut);font-weight:500}
+.row{display:flex;gap:30px;align-items:flex-start}
+.frame{width:840px;flex:0 0 840px;background:var(--paper);border:1.5px solid var(--ln);
+  position:relative;z-index:1}
+.notes{width:286px;flex:0 0 286px}
+.notes ul{list-style:none;position:relative}
+
+/* ===== 주석 카드 ===== */
+.note{border:1px solid var(--ln3);border-radius:8px;background:#fff;
+  padding:9px 11px 9px 34px;font-size:12px;line-height:1.5;color:#444;width:100%}
+.note .n{position:absolute;left:9px;top:9px;width:18px;height:18px;border-radius:50%;
+  background:var(--ln);color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.note b{color:#1c1c1c}
+
+/* ===== 핀 (JS가 캔버스 좌표로 배치) ===== */
+.pin{position:absolute;width:21px;height:21px;border-radius:50%;background:var(--ln);
+  color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  z-index:8;border:2px solid #fff;box-shadow:0 0 0 1px var(--ln)}
+
+/* ===== 공통 와이어 요소 ===== */
+.bar{height:9px;background:var(--ln3);border-radius:4px}
+.bar.w90{width:90%}.bar.w80{width:80%}.bar.w70{width:70%}.bar.w60{width:60%}.bar.w50{width:50%}.bar.w40{width:40%}
+.barset{display:flex;flex-direction:column;gap:7px}
+.appbar{display:flex;align-items:center;gap:18px;padding:12px 18px;border-bottom:1.5px solid var(--ln)}
+.logo{font-weight:800;font-size:16px;border:1.5px solid var(--ln);border-radius:6px;padding:5px 11px}
+.nav{display:flex;gap:6px;flex:1}
+.navi{font-size:13px;color:var(--mut);padding:6px 10px;border-radius:6px}
+.navi.on{background:var(--fill);color:#1c1c1c;font-weight:700;border:1px solid var(--ln3)}
+.ava{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ln2);background:
+  linear-gradient(to top right,transparent calc(50% - .6px),var(--ln2) 50%,transparent calc(50% + .6px)),
+  linear-gradient(to top left,transparent calc(50% - .6px),var(--ln2) 50%,transparent calc(50% + .6px))}
+.body{padding:18px 22px}
+.ptitle{font-size:17px;font-weight:800}
+.psub{font-size:12px;color:var(--mut);margin-top:4px}
+
+.field{margin-bottom:14px}
+.lbl{font-size:12px;font-weight:700;color:#333;margin-bottom:6px;display:block}
+.req{font-size:10px;color:#555;border:1px solid var(--ln3);border-radius:4px;padding:1px 5px;margin-left:5px;font-weight:600}
+.inp{height:38px;border:1.5px solid var(--ln2);border-radius:6px;display:flex;align-items:center;
+  padding:0 11px;color:#9a9a9a;font-size:12px;background:#fff}
+.inp.area{height:64px;align-items:flex-start;padding-top:9px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:12px;border:1.5px solid var(--ln2);border-radius:999px;padding:6px 13px;color:var(--mut);background:#fff}
+.chip.on{background:var(--fill);color:#1c1c1c;border-color:var(--ln);font-weight:700}
+.chip.dd::after{content:" ▾";color:var(--ln2)}
+.btnrow{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.btn{border:1.5px solid var(--ln);border-radius:6px;padding:9px 16px;font-size:13px;background:#fff;color:#1c1c1c;font-weight:600}
+.btn.pri{background:var(--ln);color:#fff}
+.btn.gh{border-color:var(--ln3);color:var(--mut);font-weight:500}
+.btn.sm{padding:6px 11px;font-size:12px}
+.spacer{flex:1}
+
+/* 덱(레터) */
+.deck{position:relative;margin:6px 40px 0;height:430px}
+.ghost{position:absolute;left:50%;border:1.5px solid var(--ln3);border-radius:10px;background:#fff;width:560px;height:400px}
+.ghost.g2{transform:translateX(-50%) translateY(16px) scale(.93);opacity:.5}
+.ghost.g1{transform:translateX(-50%) translateY(8px) scale(.965);opacity:.75}
+.dcard{position:absolute;left:50%;top:0;transform:translateX(-50%);width:560px;
+  border:1.5px solid var(--ln);border-radius:10px;background:#fff;padding:20px 24px}
+.masthead{display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--ln3);padding-bottom:9px;margin-bottom:13px}
+.masthead .brand{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.masthead .date{font-size:11px;color:var(--mut)}
+.eyebrow{font-size:11px;color:var(--mut);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
+.reason{font-size:14px;font-weight:700;line-height:1.5;margin-bottom:12px}
+.jobline{font-size:15px;font-weight:800;margin-bottom:10px}
+.fitrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.stars{font-size:15px;letter-spacing:2px;color:#444}
+.fitnum{font-size:13px;font-weight:800}
+.preview{border:1px dashed var(--ln2);border-radius:7px;padding:10px;margin-bottom:14px;background:var(--fill2)}
+.preview .cap{font-size:10px;color:var(--mut);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
+.decknav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
+.arrowbtn{width:38px;height:38px;border:1.5px solid var(--ln);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:#fff}
+.counter{font-size:13px;color:#333;font-weight:700;min-width:120px;text-align:center}
+.dots{font-size:13px;letter-spacing:3px;color:var(--ln2)}
+
+/* 패널/그리드 */
+.panel{border:1.5px solid var(--ln3);border-radius:8px;padding:13px 15px;margin-bottom:13px}
+.panel .ph3{font-size:13px;font-weight:800;margin-bottom:11px;display:flex;gap:7px;align-items:baseline}
+.panel .ph3 .hint{font-size:11px;color:var(--mut);font-weight:500}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.cell{border:1px solid var(--ln3);border-radius:6px;padding:8px 9px}
+.cell .k{font-size:10px;color:var(--mut);margin-bottom:4px}
+.cell .v{font-size:13px;font-weight:700}
+
+/* 기준 매트릭스 */
+.matrix{display:flex;flex-direction:column;gap:8px}
+.mrow{display:flex;align-items:center;gap:10px}
+.badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:5px;flex:0 0 auto;min-width:62px;text-align:center}
+.badge.ok{border:1.5px solid var(--ln)}
+.badge.est{border:1.5px dotted var(--ln2);color:#555}
+.badge.warn{border:1.5px dashed #444;color:#333;background:repeating-linear-gradient(45deg,#fff,#fff 5px,#f0f0f0 5px,#f0f0f0 10px)}
+.mrow .mtxt{font-size:12px;color:#333}
+
+/* 근거 트레이스 */
+.trace{display:flex;flex-direction:column;gap:0;position:relative;padding-left:6px}
+.tnode{display:flex;gap:11px;align-items:flex-start;padding:7px 0;position:relative}
+.tnode .tdot{width:14px;height:14px;border-radius:50%;border:2px solid var(--ln);background:#fff;flex:0 0 14px;margin-top:2px;z-index:2}
+.tnode:not(:last-child)::before{content:"";position:absolute;left:6px;top:18px;bottom:-7px;width:2px;background:var(--ln3)}
+.tnode .tbody{flex:1}
+.tnode .tk{font-size:11px;color:var(--mut);margin-bottom:4px}
+.concl{border:1.5px solid var(--ln);border-radius:7px;padding:9px 11px;margin-top:6px;font-size:12px;font-weight:700;background:var(--fill2)}
+
+/* 2단 상세 */
+.cols{display:flex;gap:18px;align-items:flex-start}
+.cmain{flex:1;min-width:0}
+.cside{width:210px;flex:0 0 210px}
+.applybox{border:1.5px solid var(--ln);border-radius:8px;padding:14px}
+.tinynote{font-size:11px;color:var(--mut);line-height:1.5;margin-top:9px}
+
+/* 리스트(저장목록/탐색결과) */
+.listrow{display:flex;align-items:center;gap:13px;border:1px solid var(--ln3);border-radius:7px;padding:11px 13px;margin-bottom:9px}
+.listrow .li-main{flex:1;min-width:0}
+.li-title{font-size:13px;font-weight:700;margin-bottom:5px}
+.statetag{font-size:11px;font-weight:700;border:1.5px solid var(--ln2);border-radius:5px;padding:3px 8px;color:#444}
+.statetag.solid{background:var(--fill);border-color:var(--ln)}
+.dday{font-size:12px;font-weight:800;color:#333}
+.minifit{font-size:11px;font-weight:800;color:#333;white-space:nowrap}
+
+/* 탐색: 유튜브식 피드 그리드 */
+.ygrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px 14px}
+.ycard{display:flex;flex-direction:column;gap:9px}
+.ythumb{position:relative;width:100%;height:143px;border:1.5px solid var(--ln2);border-radius:8px;background:
+  linear-gradient(to top right,transparent calc(50% - .6px),var(--ln3) 50%,transparent calc(50% + .6px)),
+  linear-gradient(to top left,transparent calc(50% - .6px),var(--ln3) 50%,transparent calc(50% + .6px));
+  display:flex;align-items:center;justify-content:center}
+.ythumb .thlabel{background:#fff;border:1px solid var(--ln3);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--mut)}
+.ythumb .fitbadge{position:absolute;right:6px;bottom:6px;background:var(--ln);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:.3px}
+.ythumb .dbadge{position:absolute;left:6px;top:6px;background:#fff;border:1.5px solid var(--ln);color:#333;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px}
+.ymeta{display:flex;gap:9px;align-items:flex-start}
+.yava{width:30px;height:30px;flex:0 0 30px;border-radius:50%;border:1.5px solid var(--ln2);background:
+  linear-gradient(to top right,transparent calc(50% - .6px),var(--ln2) 50%,transparent calc(50% + .6px)),
+  linear-gradient(to top left,transparent calc(50% - .6px),var(--ln2) 50%,transparent calc(50% + .6px))}
+.ytext{flex:1;min-width:0}
+.ytitle{font-size:12.5px;font-weight:800;line-height:1.35;margin-bottom:4px}
+.ychannel{font-size:11px;color:var(--mut);margin-bottom:2px}
+.yline{font-size:11px;color:var(--mut)}
+.ykebab{flex:0 0 12px;font-size:15px;color:var(--ln2);line-height:1;text-align:center;font-weight:800}
+
+/* 프로필: 업로드 / 이동 버튼 */
+.upload{border:1.5px dashed var(--ln2);border-radius:8px;padding:15px;display:flex;align-items:center;gap:12px;justify-content:center;color:var(--mut);background:var(--fill2)}
+.up-ico{width:30px;height:30px;flex:0 0 30px;border:1.5px solid var(--ln2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.up-txt{display:flex;flex-direction:column;gap:2px}
+.up-txt b{font-size:12px;color:#333}
+.up-txt span{font-size:11px}
+.filechip{display:inline-flex;align-items:center;gap:8px;margin-top:9px;border:1.5px solid var(--ln2);border-radius:6px;padding:6px 10px;font-size:12px;color:#333}
+.filechip .fc-x{color:var(--mut);margin-left:2px}
+.navcard{display:flex;align-items:center;gap:12px;border:1.5px solid var(--ln);border-radius:8px;padding:13px 15px;margin-bottom:14px}
+.navcard .nc-main{flex:1;min-width:0}
+.navcard .nc-title{font-size:13px;font-weight:800}
+.navcard .nc-sub{font-size:11px;color:var(--mut);margin-top:3px}
+.navcard .nc-status{font-size:11px;font-weight:700;border:1.5px dotted var(--ln2);color:#555;border-radius:5px;padding:3px 8px}
+
+.searchbar{display:flex;gap:9px;margin-bottom:12px}
+.searchbar .inp{flex:1}
+.filterbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.reshead{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:10px}
+
+.back{font-size:12px;color:var(--mut);margin-bottom:10px;display:inline-block}
+.extbox{border:1.5px dashed var(--ln2);border-radius:8px;padding:14px 16px;background:#fff;width:200px;text-align:center}
+.extbox .et{font-size:12px;font-weight:700;margin-bottom:4px}
+.extbox .es{font-size:11px;color:var(--mut)}
+</style>
+</head>
+<body>
+
+<div class="board-head">
+  <h1>Job.is — 핵심 화면 와이어프레임 보드</h1>
+  <div class="meta">Lo-fi · Desktop · 흐름: 프로필 → 오늘의 추천(브리핑 덱) → 추천 상세 → 저장 목록 / 탐색(보조) · 컨셉: "무한 피드"가 아닌 "매일 도착하는 큐레이션 레터"</div>
+  <div class="legend">
+    <div class="item"><span class="lg-ph"></span> 이미지 영역</div>
+    <div class="item"><span class="lg-bar"></span> 본문 텍스트(가변)</div>
+    <div class="item"><span class="lg-pin">1</span> 요소 주석 번호</div>
+    <div class="item"><span class="lg-flow"></span> 화면 이동(플로우)</div>
+    <div class="item"><span class="lg-lead"></span> 요소 설명 연결선</div>
+    <div class="item">✓ 충족 · ~ 추정 · ! 주의 (기준 매트릭스)</div>
+  </div>
+</div>
+
+<div class="canvas">
+  <svg class="wires">
+    <defs>
+      <marker id="ah" markerWidth="13" markerHeight="13" refX="9" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L10,4.5 L0,9 Z" fill="#3a3a3a"/>
+      </marker>
+      <marker id="ah2" markerWidth="11" markerHeight="11" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#9a9a9a"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <!-- ============ ① 프로필 설정 (좌상, 주석 왼쪽) ============ -->
+  <div class="unit nl" style="left:60px;top:150px">
+    <div class="ftitle">① 프로필 설정 <span class="dim">· My Profile · 첫 가입(온보딩) 여기서 수행</span></div>
+    <div class="row">
+      <div class="notes"><ul>
+        <li class="note" data-pin="A1"><span class="n">1</span><b>온보딩.</b> 첫 가입 흐름을 My Profile에서 수행 — 프로필 입력이 초기 설정(온보딩)을 겸함.</li>
+        <li class="note" data-pin="A2"><span class="n">2</span><b>최소 필수 입력</b>(직무·경력)만 받고 시작. 진입 장벽 최소화.</li>
+        <li class="note" data-pin="A3"><span class="n">3</span><b>자유 선호 조건</b>은 추천 "근거" 생성에 활용(상세의 당신의 기준에 반영).</li>
+        <li class="note" data-pin="A5"><span class="n">5</span><b>이력서·자소서 업로드(선택).</b> 자동 파싱해 매칭·추천 근거 정밀도↑. 드래그&드롭 + 파일 칩으로 상태 표시.</li>
+        <li class="note" data-pin="A6"><span class="n">6</span><b>직무 성향 테스트 이동.</b> 후순위 별도 화면으로 진입 — 완료/미완료 상태 노출, 결과가 추천에 반영.</li>
+        <li class="note" data-pin="A4"><span class="n">4</span><b>저장 즉시</b> 다음 아침 추천 생성 조건이 갱신됨.</li>
+      </ul></div>
+      <div class="frame" id="fA">
+        <div class="appbar">
+          <div class="logo">Job.is</div>
+          <div class="nav" data-anno="A1">
+            <span class="navi">오늘의 추천</span><span class="navi">탐색</span>
+            <span class="navi on">My Profile</span><span class="navi">저장 목록</span><span class="navi">설정</span>
+          </div>
+          <div class="ava"></div>
+        </div>
+        <div class="body">
+          <div class="ptitle">프로필 설정</div>
+          <div class="psub">이 정보로 매일 아침 추천 레터가 만들어집니다</div>
+          <div style="height:16px"></div>
+
+          <div class="field" data-anno="A2">
+            <label class="lbl">관심 직무 <span class="req">필수</span></label>
+            <div class="inp">예: IT 서비스 PM</div>
+          </div>
+          <div class="field">
+            <label class="lbl">경력 단계 <span class="req">필수</span></label>
+            <div class="chips"><span class="chip on">신입</span><span class="chip">1~3년</span><span class="chip">3년+</span></div>
+          </div>
+          <div class="field">
+            <label class="lbl">관심 분야</label>
+            <div class="chips"><span class="chip on">기획/PM</span><span class="chip">개발</span><span class="chip">디자인</span><span class="chip">데이터</span><span class="chip">+ 추가</span></div>
+          </div>
+          <div class="field">
+            <label class="lbl">희망 지역</label>
+            <div class="inp">예: 서울, 경기</div>
+          </div>
+          <div class="field" data-anno="A3">
+            <label class="lbl">선호 조건 <span class="req" style="border:none;color:var(--mut)">자유 입력</span></label>
+            <div class="inp area">예: 정규직 우선 · 재택 가능 · 신입 교육 제공 …</div>
+          </div>
+
+          <div class="field" data-anno="A5">
+            <label class="lbl">이력서 · 자기소개서 <span class="req" style="border:none;color:var(--mut)">선택 · 업로드</span></label>
+            <div class="upload">
+              <div class="up-ico">⬆</div>
+              <div class="up-txt"><b>파일을 끌어다 놓거나 클릭하여 업로드</b><span>PDF · DOCX · 최대 10MB</span></div>
+            </div>
+            <div class="filechip">▤ 이력서_2026.pdf <span class="fc-x">✕</span></div>
+          </div>
+
+          <div class="field" data-anno="A6">
+            <label class="lbl">직무 성향 테스트</label>
+            <div class="navcard">
+              <div class="nc-main">
+                <div class="nc-title">내게 맞는 직무 성향 알아보기</div>
+                <div class="nc-sub">10문항 · 약 3분 · 결과가 추천 정밀도에 반영 (My Profile 하위 별도 화면)</div>
+              </div>
+              <div class="nc-status">미완료</div>
+              <span class="btn">시작하기 →</span>
+            </div>
+          </div>
+
+          <div class="btnrow" data-anno="A4" style="margin-top:18px">
+            <span class="spacer"></span>
+            <span class="btn gh">미리보기</span><span class="btn pri">저장</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ② 오늘의 추천 / 브리핑 덱 (우상, 주석 오른쪽) ============ -->
+  <div class="unit nr" style="left:1360px;top:150px">
+    <div class="ftitle">② 오늘의 추천 <span class="dim">· 브리핑 덱(레터) — 핵심 화면</span></div>
+    <div class="row">
+      <div class="frame" id="fB">
+        <div class="appbar">
+          <div class="logo">Job.is</div>
+          <div class="nav">
+            <span class="navi on">오늘의 추천</span><span class="navi">탐색</span>
+            <span class="navi">My Profile</span><span class="navi">저장 목록</span><span class="navi">설정</span>
+          </div>
+          <div class="ava"></div>
+        </div>
+        <div class="body" style="text-align:center" data-anno="B1">
+          <div class="ptitle" style="display:inline-block">오늘의 브리핑</div>
+          <div class="psub">6월 21일 · 오늘 도착한 추천 <b>4건</b> (하루 3~6건만 엄선)</div>
+        </div>
+
+        <div class="deck">
+          <div class="ghost g2"></div>
+          <div class="ghost g1"></div>
+          <div class="dcard">
+            <div class="masthead" data-anno="B3">
+              <div class="brand">Job.is · 에디터 레터</div>
+              <div class="date">No.128 · 06/21</div>
+            </div>
+            <div class="eyebrow">오늘의 추천 · 1번째</div>
+            <div class="reason">"성장 중인 팀에서 신입 PM으로 커리어를 시작하기 좋은 자리예요."</div>
+            <div class="jobline">[회사명] · IT 서비스 PM (신입)</div>
+            <div class="fitrow" data-anno="B4">
+              <span class="stars">●●●●○</span><span class="fitnum">적합도 87%</span>
+              <span class="spacer"></span>
+              <span class="chip">서울</span><span class="chip">신입</span><span class="chip">정규직</span>
+            </div>
+            <div class="preview">
+              <div class="cap">한눈에 요약 · 자동 생성</div>
+              <div class="barset"><div class="bar w90"></div><div class="bar w80"></div><div class="bar w50"></div></div>
+            </div>
+            <div class="btnrow" data-anno="B5">
+              <span class="btn pri">펼쳐보기</span><span class="btn">저장</span>
+              <span class="spacer"></span><span class="btn gh">관심 없음</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="decknav" data-anno="B2">
+          <div class="arrowbtn">←</div>
+          <div class="counter">오늘 도착 · 1 / 4</div>
+          <div class="arrowbtn">→</div>
+          <div class="dots">● ○ ○ ○</div>
+        </div>
+        <div style="height:18px"></div>
+      </div>
+
+      <div class="notes"><ul>
+        <li class="note" data-pin="B1"><span class="n">1</span><b>희소성 프레임.</b> 무한 스크롤 피드를 정면 부정 — 하루 3~6건만 도착.</li>
+        <li class="note" data-pin="B3"><span class="n">2</span><b>레터 은유.</b> 채용공고가 아니라 에디터가 보낸 편지 톤(매스트헤드/No.).</li>
+        <li class="note" data-pin="B4"><span class="n">3</span><b>적합도 점수 + 한 줄 이유</b>를 카드 표면에 노출 — 왜 왔는지 즉시 납득.</li>
+        <li class="note" data-pin="B5"><span class="n">4</span><b>펼쳐보기 → 상세</b>(③). 저장/관심없음은 추천 학습 신호로 수집.</li>
+        <li class="note" data-pin="B2"><span class="n">5</span><b>한 번에 한 건(덱).</b> 한 장씩 넘기는 카운터·뒤 카드 잔상 — 비교 피로 제거.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ ③ 추천 상세 (우하, 주석 오른쪽) ============ -->
+  <div class="unit nr" style="left:1360px;top:1180px">
+    <div class="ftitle">③ 추천 상세 <span class="dim">· 펼쳐보기 (At a Glance · 당신의 기준 · 근거 · 지원)</span></div>
+    <div class="row">
+      <div class="frame" id="fC">
+        <div class="appbar">
+          <div class="logo">Job.is</div>
+          <div class="nav"><span class="navi on">오늘의 추천</span><span class="navi">탐색</span><span class="navi">My Profile</span><span class="navi">저장 목록</span></div>
+          <div class="ava"></div>
+        </div>
+        <div class="body">
+          <span class="back">← 오늘의 추천으로</span>
+          <div class="ptitle">[회사명] · IT 서비스 PM (신입)</div>
+          <div class="psub">출처 [원문 사이트] · 게시 06/18 · 마감 D-7</div>
+          <div style="height:14px"></div>
+
+          <div class="cols">
+            <div class="cmain">
+              <div class="panel" data-anno="C1">
+                <div class="ph3">At a Glance <span class="hint">한눈에 보는 핵심</span></div>
+                <div class="grid3">
+                  <div class="cell"><div class="k">직무</div><div class="v">IT 서비스 PM</div></div>
+                  <div class="cell"><div class="k">경력</div><div class="v">신입</div></div>
+                  <div class="cell"><div class="k">지역</div><div class="v">서울</div></div>
+                  <div class="cell"><div class="k">고용형태</div><div class="v">정규직</div></div>
+                  <div class="cell"><div class="k">마감</div><div class="v">D-7</div></div>
+                  <div class="cell"><div class="k">연봉</div><div class="v">미기재</div></div>
+                </div>
+              </div>
+
+              <div class="panel" data-anno="C2">
+                <div class="ph3">당신의 기준 <span class="hint">내 조건과 이렇게 맞아요</span></div>
+                <div class="matrix">
+                  <div class="mrow"><span class="badge ok">✓ 충족</span><span class="mtxt">관심 직무 'IT 서비스 PM' 일치</span></div>
+                  <div class="mrow"><span class="badge ok">✓ 충족</span><span class="mtxt">경력 단계 '신입' 일치</span></div>
+                  <div class="mrow"><span class="badge est">~ 추정</span><span class="mtxt">관심 분야 키워드 2개 매칭(본문 기반 추정)</span></div>
+                  <div class="mrow"><span class="badge warn">! 주의</span><span class="mtxt">연봉 미기재 — 조건 확인 필요</span></div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="ph3">Editor's Note <span class="hint">큐레이션 코멘트</span></div>
+                <div class="barset"><div class="bar w90"></div><div class="bar w80"></div><div class="bar w60"></div></div>
+              </div>
+
+              <div class="panel" data-anno="C3">
+                <div class="ph3">왜 추천했나 <span class="hint">추천 근거(설명가능성)</span></div>
+                <div class="trace">
+                  <div class="tnode"><span class="tdot"></span><div class="tbody"><div class="tk">내 입력 기준</div><div class="bar w70"></div></div></div>
+                  <div class="tnode"><span class="tdot"></span><div class="tbody"><div class="tk">공고 매칭</div><div class="bar w80"></div></div></div>
+                  <div class="tnode"><span class="tdot"></span><div class="tbody"><div class="tk">에디터 가중</div><div class="bar w50"></div></div></div>
+                </div>
+                <div class="concl">→ 결론: 적합도 87% · Top 추천</div>
+              </div>
+
+              <div class="panel">
+                <div class="ph3">피드백 <span class="hint">추천 학습용</span></div>
+                <div class="btnrow" style="margin-bottom:9px"><span class="btn">저장</span><span class="btn gh">관심 없음 / 스킵</span></div>
+                <div class="chips" style="margin-bottom:12px"><span class="chip">지역 안맞음</span><span class="chip">직무 안맞음</span><span class="chip">경력 조건</span><span class="chip">이미 지원함</span></div>
+                <div data-anno="C5">
+                  <label class="lbl" style="font-weight:600">코멘트 <span class="req" style="border:none;color:var(--mut)">자유 텍스트 · 선택</span></label>
+                  <div class="inp area">이 추천이 왜 맞았는지 / 아쉬웠는지 자유롭게 남겨주세요…</div>
+                  <div class="btnrow" style="margin-top:8px"><span class="spacer"></span><span class="btn sm">코멘트 보내기</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cside">
+              <div class="applybox" data-anno="C4">
+                <div style="font-size:11px;color:var(--mut);margin-bottom:9px">지원 액션</div>
+                <div class="btn pri" style="width:100%;text-align:center;margin-bottom:9px">지원하기 →</div>
+                <div class="btn" style="width:100%;text-align:center">지원 의향 표시</div>
+                <div class="tinynote">'지원하기' = 외부 원문 이동 + 행동 기록 / '지원 의향' = 외부 이동 없이 의향만 캡처(액티베이션 신호)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes"><ul>
+        <li class="note" data-pin="C1"><span class="n">1</span><b>At a Glance.</b> 스캔 최적화 — 의사결정 핵심 6개를 표 형태로 먼저.</li>
+        <li class="note" data-pin="C2"><span class="n">2</span><b>당신의 기준 매트릭스.</b> 내 조건 대비 충족/추정/주의 — <b>약점(연봉 미기재)도 숨기지 않음</b>. 신뢰의 핵심.</li>
+        <li class="note" data-pin="C3"><span class="n">3</span><b>추천 근거 트레이스.</b> "왜 이게 왔는지" 경로 노출 — 블랙박스 추천 부정.</li>
+        <li class="note" data-pin="C4"><span class="n">4</span><b>지원하기 vs 지원 의향</b> 분리. 외부 이탈 전에 의향을 캡처(전환 측정 신호).</li>
+        <li class="note" data-pin="C5"><span class="n">5</span><b>정성 코멘트(자유 텍스트).</b> 칩(정형 사유)으로 못 담는 맥락을 수집 — 추천 개선·에디터 큐레이션 학습 신호.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ ④ 저장 목록 (좌중, 주석 왼쪽) ============ -->
+  <div class="unit nl" style="left:60px;top:1180px">
+    <div class="ftitle">④ 저장 목록 <span class="dim">· 나중에 볼 추천 + 진행 상태</span></div>
+    <div class="row">
+      <div class="notes"><ul>
+        <li class="note" data-pin="D1"><span class="n">1</span><b>마감 임박 우선</b> 정렬 — 놓치지 않게.</li>
+        <li class="note" data-pin="D2"><span class="n">2</span><b>진행 상태 추적.</b> 지원함 / 지원 의향 / 저장만 상태를 한눈에.</li>
+        <li class="note" data-pin="D3"><span class="n">3</span><b>저장 = 나중에.</b> 덱/상세에서 저장한 공고가 모이는 곳.</li>
+      </ul></div>
+      <div class="frame" id="fD">
+        <div class="appbar">
+          <div class="logo">Job.is</div>
+          <div class="nav"><span class="navi">오늘의 추천</span><span class="navi">탐색</span><span class="navi">My Profile</span><span class="navi on">저장 목록</span></div>
+          <div class="ava"></div>
+        </div>
+        <div class="body">
+          <div class="ptitle" style="display:inline-block">저장 목록</div>
+          <div class="psub" data-anno="D1">저장 4건 · 마감 임박순</div>
+          <div style="height:14px"></div>
+
+          <div class="listrow" data-anno="D2">
+            <div class="li-main"><div class="li-title">[회사명] · IT 서비스 PM</div><div class="bar w60"></div></div>
+            <span class="statetag solid">지원함</span><span class="dday">D-2</span><span class="btn gh sm">보기</span>
+          </div>
+          <div class="listrow">
+            <div class="li-main"><div class="li-title">[회사명] · 프로덕트 기획</div><div class="bar w50"></div></div>
+            <span class="statetag">지원 의향</span><span class="dday">D-5</span><span class="btn gh sm">보기</span>
+          </div>
+          <div class="listrow" data-anno="D3">
+            <div class="li-main"><div class="li-title">[회사명] · 서비스 운영</div><div class="bar w70"></div></div>
+            <span class="statetag">저장만</span><span class="dday">D-9</span><span class="btn gh sm">보기</span>
+          </div>
+          <div class="listrow">
+            <div class="li-main"><div class="li-title">[회사명] · 데이터 PM</div><div class="bar w40"></div></div>
+            <span class="statetag">저장만</span><span class="dday">D-14</span><span class="btn gh sm">보기</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ⑤ 탐색 (좌하, 주석 왼쪽) ============ -->
+  <div class="unit nl" style="left:60px;top:2230px">
+    <div class="ftitle">⑤ 탐색 <span class="dim">· 원할 때 직접 찾기 (보조 동선)</span></div>
+    <div class="row">
+      <div class="notes"><ul>
+        <li class="note" data-pin="E1"><span class="n">1</span><b>탐색은 보조 동선.</b> 추천(덱)이 메인 — 무한 피드 부정과 일관되게, 검색은 사용자가 능동적으로 의도할 때만.</li>
+        <li class="note" data-pin="E2"><span class="n">2</span><b>키워드 검색.</b> 직무 · 회사 · 기술 스택으로 직접 질의.</li>
+        <li class="note" data-pin="E3"><span class="n">3</span><b>필터 + 정렬.</b> 지역 · 경력 · 고용형태 · 분야 / 정확도·최신·마감순.</li>
+        <li class="note" data-pin="E4"><span class="n">4</span><b>유튜브식 피드 그리드.</b> 능동 탐색엔 훑어보기가 맞음 — 3열 카드 매트릭스로 한 번에 여러 공고 스캔.</li>
+        <li class="note" data-pin="E5"><span class="n">5</span><b>카드 = 공고 섬네일 + 회사(채널)·직무(제목)·메타.</b> 데이터로 받아오는 <b>섬네일</b>을 표면에 활용, 우하단에 <b>적합도 배지</b>·좌상단 마감. ⋮ = 저장·관심없음(추천 학습).</li>
+      </ul></div>
+      <div class="frame" id="fE">
+        <div class="appbar">
+          <div class="logo">Job.is</div>
+          <div class="nav"><span class="navi">오늘의 추천</span><span class="navi on">탐색</span><span class="navi">My Profile</span><span class="navi">저장 목록</span></div>
+          <div class="ava"></div>
+        </div>
+        <div class="body">
+          <div class="ptitle" data-anno="E1" style="display:inline-block">탐색</div>
+          <div class="psub">추천이 메인, 탐색은 직접 찾고 싶을 때의 보조 동선</div>
+          <div style="height:14px"></div>
+
+          <div class="searchbar" data-anno="E2">
+            <div class="inp">직무 · 회사 · 키워드 검색</div>
+            <span class="btn pri">검색</span>
+          </div>
+          <div class="filterbar" data-anno="E3">
+            <span class="chip dd">지역</span><span class="chip dd">경력</span><span class="chip dd">고용형태</span><span class="chip dd">분야</span>
+            <span class="spacer"></span><span class="chip dd">정확도순</span>
+          </div>
+
+          <div class="reshead"><span>검색 결과 24건</span><span>유튜브식 피드 · 적합도 표시 ON</span></div>
+
+          <div class="ygrid" data-anno="E4">
+            <div class="ycard" data-anno="E5">
+              <div class="ythumb"><span class="thlabel">공고 섬네일</span><span class="dbadge">D-7</span><span class="fitbadge">적합도 84%</span></div>
+              <div class="ymeta">
+                <div class="yava"></div>
+                <div class="ytext"><div class="ytitle">IT 서비스 PM (신입)</div><div class="ychannel">[회사명]</div><div class="yline">서울 · 정규직 · 마감 D-7</div></div>
+                <div class="ykebab">⋮</div>
+              </div>
+            </div>
+            <div class="ycard">
+              <div class="ythumb"><span class="thlabel">공고 섬네일</span><span class="dbadge">D-12</span><span class="fitbadge">적합도 71%</span></div>
+              <div class="ymeta">
+                <div class="yava"></div>
+                <div class="ytext"><div class="ytitle">주니어 PM</div><div class="ychannel">[회사명]</div><div class="yline">서울 · 정규직 · 마감 D-12</div></div>
+                <div class="ykebab">⋮</div>
+              </div>
+            </div>
+            <div class="ycard">
+              <div class="ythumb"><span class="thlabel">공고 섬네일</span><span class="dbadge">D-3</span><span class="fitbadge">적합도 66%</span></div>
+              <div class="ymeta">
+                <div class="yava"></div>
+                <div class="ytext"><div class="ytitle">서비스 기획자</div><div class="ychannel">[회사명]</div><div class="yline">판교 · 정규직 · 마감 D-3</div></div>
+                <div class="ykebab">⋮</div>
+              </div>
+            </div>
+            <div class="ycard">
+              <div class="ythumb"><span class="thlabel">공고 섬네일</span><span class="dbadge">D-9</span><span class="fitbadge">적합도 63%</span></div>
+              <div class="ymeta">
+                <div class="yava"></div>
+                <div class="ytext"><div class="ytitle">프로덕트 오너</div><div class="ychannel">[회사명]</div><div class="yline">서울 · 계약직 · 마감 D-9</div></div>
+                <div class="ykebab">⋮</div>
+              </div>
+            </div>
+            <div class="ycard">
+              <div class="ythumb"><span class="thlabel">공고 섬네일</span><span class="dbadge">D-20</span><span class="fitbadge">적합도 59%</span></div>
+              <div class="ymeta">
+                <div class="yava"></div>
+                <div class="ytext"><div class="ytitle">그로스 PM</div><div class="ychannel">[회사명]</div><div class="yline">원격 · 정규직 · 마감 D-20</div></div>
+                <div class="ykebab">⋮</div>
+              </div>
+            </div>
+            <div class="ycard">
+              <div class="ythumb"><span class="thlabel">공고 섬네일</span><span class="dbadge">D-5</span><span class="fitbadge">적합도 55%</span></div>
+              <div class="ymeta">
+                <div class="yava"></div>
+                <div class="ytext"><div class="ytitle">데이터 PM</div><div class="ychannel">[회사명]</div><div class="yline">서울 · 정규직 · 마감 D-5</div></div>
+                <div class="ykebab">⋮</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 외부 사이트(지원하기 도착점) -->
+  <div class="unit" id="ext" style="left:1560px;top:2500px">
+    <div class="extbox"><div class="et">외부 채용 원문</div><div class="es">'지원하기' → 새 탭 이동</div></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const NS="http://www.w3.org/2000/svg";
+  const canvas=document.querySelector('.canvas');
+  const svg=document.querySelector('.wires');
+
+  function rectIn(el){
+    const c=canvas.getBoundingClientRect(), r=el.getBoundingClientRect();
+    return {x:r.left-c.left, y:r.top-c.top, w:r.width, h:r.height};
+  }
+  function pt(el,side,frac){
+    frac=(frac==null?0.5:frac);
+    const b=rectIn(el);
+    if(side==='r') return [b.x+b.w, b.y+b.h*frac];
+    if(side==='l') return [b.x,     b.y+b.h*frac];
+    if(side==='t') return [b.x+b.w*frac, b.y];
+    if(side==='b') return [b.x+b.w*frac, b.y+b.h];
+    return [b.x+b.w/2, b.y+b.h/2];
+  }
+  function line(p1,p2,cls,marker){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',p1[0]); l.setAttribute('y1',p1[1]);
+    l.setAttribute('x2',p2[0]); l.setAttribute('y2',p2[1]);
+    l.setAttribute('class','dyn '+cls);
+    if(marker) l.setAttribute('marker-end','url(#'+marker+')');
+    svg.appendChild(l);
+  }
+  function flowlabel(text,x,y){
+    const d=document.createElement('div');
+    d.className='flowlabel dynl'; d.textContent=text;
+    d.style.left=x+'px'; d.style.top=y+'px';
+    canvas.appendChild(d);
+  }
+
+  // 주석: 핀을 프레임 가장자리(요소 높이)에 두고, 주석 카드를 같은 높이로 정렬(충돌 회피),
+  //       연결선은 여백 안에서 짧게 — 본문을 가리거나 선끼리 엉키지 않게.
+  function annotate(){
+    document.querySelectorAll('.unit').forEach(function(unit){
+      const frame=unit.querySelector('.frame');
+      const ul=unit.querySelector('.notes ul');
+      if(!frame || !ul) return;
+      const onLeft=unit.classList.contains('nl');   // 주석이 왼쪽이면 핀도 프레임 왼쪽 edge
+      const fr=rectIn(frame);
+
+      // 타깃 요소 수집
+      const targets={};
+      frame.querySelectorAll('[data-anno]').forEach(function(el){ targets[el.getAttribute('data-anno')]=el; });
+
+      // 노트 + 타깃 Y
+      let items=[...ul.querySelectorAll('[data-pin]')].map(function(note){
+        const id=note.getAttribute('data-pin');
+        const tgt=targets[id];
+        const tr=tgt?rectIn(tgt):null;
+        const y=tr ? tr.y + Math.min(tr.h/2, 22) : fr.y;   // 큰 패널은 상단 근처
+        return {note:note, tgt:tgt, y:y};
+      }).filter(function(it){return it.tgt;}).sort(function(a,b){return a.y-b.y;});
+
+      // ul 컨테이너 높이 확보
+      const ulr=rectIn(ul);
+
+      // 핀 배치 (세로 최소 간격 26)
+      const pinX = onLeft ? (fr.x) : (fr.x+fr.w);
+      let prevPin=-1e9;
+      items.forEach(function(it,i){
+        let py=Math.max(it.y, prevPin+26);
+        prevPin=py;
+        it.pinX=pinX; it.pinY=py;
+        const pin=document.createElement('div');
+        pin.className='pin dynp'; pin.textContent=(i+1);
+        pin.style.left=(pinX-10.5)+'px';
+        pin.style.top=(py-10.5)+'px';
+        canvas.appendChild(pin);
+        const n=it.note.querySelector('.n'); if(n) n.textContent=(i+1);
+      });
+
+      // 노트 배치 (핀 높이에 정렬 + 세로 충돌 회피)
+      ul.style.height='auto';
+      let prevBottom=-1e9; const gap=9;
+      items.forEach(function(it){
+        const nh=it.note.offsetHeight;
+        let top=(it.pinY - ulr.y) - nh/2;
+        if(top < prevBottom+gap) top=prevBottom+gap;
+        if(top < 0) top=0;
+        it.note.style.position='absolute';
+        it.note.style.left='0';
+        it.note.style.top=top+'px';
+        prevBottom=top+nh;
+        it.noteTopAbs=ulr.y+top; it.noteH=nh;
+      });
+      ul.style.height=(prevBottom>0?prevBottom+4:fr.h)+'px';
+
+      // 연결선 (핀 → 노트 안쪽 가장자리)
+      items.forEach(function(it){
+        const noteEdgeX = onLeft ? (ulr.x+ulr.w) : ulr.x;   // 프레임을 향하는 노트 가장자리
+        const noteY = it.noteTopAbs + Math.min(it.noteH/2, 16);
+        line([it.pinX,it.pinY],[noteEdgeX,noteY],'lead','ah2');
+      });
+    });
+  }
+
+  function flows(){
+    const F={a:document.getElementById('fA'),b:document.getElementById('fB'),
+             c:document.getElementById('fC'),d:document.getElementById('fD'),
+             e:document.getElementById('fE'),ext:document.querySelector('#ext .extbox')};
+    const list=[
+      [F.a,'r',0.5, F.b,'l',0.5, '저장 → 매일 추천 생성'],
+      [F.b,'b',0.5, F.c,'t',0.5, '펼쳐보기'],
+      [F.c,'l',0.12,F.d,'r',0.12,'저장'],
+      [F.c,'b',0.62,F.ext,'t',0.5,'지원하기 → 외부'],
+      [F.e,'t',0.5, F.c,'b',0.18,'탐색 결과 → 상세'],
+    ];
+    list.forEach(function(f){
+      const p1=pt(f[0],f[1],f[2]), p2=pt(f[3],f[4],f[5]);
+      line(p1,p2,'flow','ah');
+      flowlabel(f[6],(p1[0]+p2[0])/2,(p1[1]+p2[1])/2);
+    });
+  }
+
+  function draw(){
+    svg.setAttribute('width', canvas.scrollWidth);
+    svg.setAttribute('height', canvas.scrollHeight);
+    svg.querySelectorAll('.dyn').forEach(e=>e.remove());
+    canvas.querySelectorAll('.dynp').forEach(e=>e.remove());
+    canvas.querySelectorAll('.dynl').forEach(e=>e.remove());
+    // 노트 위치 초기화(재계산 시)
+    document.querySelectorAll('.note').forEach(function(n){ n.style.position=''; n.style.top=''; n.style.left=''; });
+    annotate();
+    flows();
+  }
+
+  if(document.readyState==='complete') draw();
+  else window.addEventListener('load', draw);
+  window.addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>

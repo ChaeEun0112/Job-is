@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>오늘의 추천 · Job.is</title>
+  <meta name="description" content="하루 단 몇 건. 내 관점에 맞춘 채용 브리핑을 추천 이유와 함께. — Job.is">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2310b981'/><text x='50' y='68' font-size='55' font-weight='bold' font-family='system-ui' text-anchor='middle' fill='white'>J</text></svg>">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: {
+          sans: ['Pretendard', 'system-ui', 'sans-serif'],
+          display: ['Outfit', 'Pretendard', 'system-ui', 'sans-serif'],
+        },
+        colors: { accent: {
+          50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',
+          500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b',
+        }}
+      }}
+    }
+  </script>
+
+  <style>
+    @font-face { font-family: 'Pretendard'; font-display: swap; }
+    @font-face { font-family: 'Outfit'; font-display: swap; }
+
+    .grain::before {
+      content: ''; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes cardIn { from { opacity: 0; transform: translateY(8px) scale(0.99); } to { opacity: 1; transform: none; } }
+    .card-in { animation: cardIn .4s cubic-bezier(.16,1,.3,1) both; }
+
+    .glass {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    /* the briefing card — translucent emerald glass */
+    .brief-card {
+      /* opaque base FIRST, emerald tint floats on top — never see-through */
+      background: linear-gradient(160deg, rgba(16,185,129,0.12), rgba(16,185,129,0) 55%), #15151a;
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 24px 60px -24px rgba(0,0,0,0.7);
+    }
+    /* ══════════ NEWSLETTER / LETTER ══════════ */
+    .masthead-rule { border-bottom: 1px solid rgba(255,255,255,0.12); }
+    /* match score as a postmark / rubber stamp */
+    .seal {
+      width: 4.7rem; height: 4.7rem; border-radius: 9999px; transform: rotate(-9deg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1.5px dashed rgba(16,185,129,0.55);
+      background: radial-gradient(circle, rgba(16,185,129,0.12), transparent 72%);
+      box-shadow: inset 0 0 12px rgba(16,185,129,0.08);
+    }
+    .seal-label { font-size: 8px; letter-spacing: .03em; color: #34d399; opacity: .8; margin-bottom: 1px; }
+    .seal-num { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1; color: #34d399; }
+    .seal-pct { font-size: .85rem; font-weight: 700; }
+    /* letter body — a touch of editorial warmth */
+    .letter-body { font-size: 1.18rem; line-height: 1.85; color: #e4e4e7; }
+
+    .arrow-btn { transition: all .3s cubic-bezier(.16,1,.3,1); }
+    .arrow-btn:hover { transform: scale(1.08); border-color: rgba(16,185,129,0.4); color: #fff; }
+    .arrow-btn:active { transform: scale(.94); }
+    .magnetic-cta { transition: all .4s cubic-bezier(.16,1,.3,1); }
+    .magnetic-cta:hover { transform: scale(1.02); box-shadow: 0 0 40px rgba(16,185,129,0.3); }
+    .magnetic-cta:active { transform: scale(.98); }
+    .magnetic-cta .arrow-icon { transition: transform .4s cubic-bezier(.16,1,.3,1); }
+    .magnetic-cta:hover .arrow-icon { transform: translateX(4px); }
+
+    .kr-text { word-break: keep-all; overflow-wrap: break-word; }
+    .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .balance { text-wrap: balance; }
+    .dot { transition: all .3s ease; }
+    .fb-btn { transition: all .2s ease; }
+
+    /* body tabs */
+    .tab {
+      position: relative; padding: .55rem 1rem; font-size: .95rem; font-weight: 500;
+      color: #71717a; transition: color .2s ease; white-space: nowrap;
+    }
+    .tab:hover { color: #d4d4d8; }
+    .tab.tab-on { color: #fafafa; font-weight: 600; }
+    .tab.tab-on::after {
+      content: ''; position: absolute; left: 1rem; right: 1rem; bottom: -1px;
+      height: 2px; background: #10b981; border-radius: 2px;
+    }
+
+    /* ══════════ REASONING TRACE — the hero ══════════ */
+    .trace { position: relative; padding-left: 1.6rem; }
+    .trace::before {                                   /* the spine that connects your signals */
+      content: ''; position: absolute; left: 5px; top: 7px; bottom: 14px; width: 2px;
+      background: linear-gradient(180deg, #10b981, rgba(16,185,129,0.18));
+      transform: scaleY(0); transform-origin: top;
+    }
+    .trace-node { position: relative; padding-bottom: 1.15rem; }
+    .trace-node:last-child { padding-bottom: .6rem; }
+    .trace-dot {
+      position: absolute; left: 0; top: 5px; width: 11px; height: 11px; border-radius: 9999px;
+      background: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.14); transform: scale(0);
+    }
+    .trace-src {
+      display: inline-flex; align-items: center; gap: .32rem;
+      font-size: .72rem; font-weight: 700; letter-spacing: .02em; color: #34d399;
+    }
+    .trace-text { font-size: .95rem; line-height: 1.62; color: #a1a1aa; margin-top: .25rem; }
+    .trace-conclusion {
+      display: flex; gap: .8rem; align-items: center; margin-top: .35rem;
+      padding: .85rem 1rem; border-radius: .95rem;
+      background: linear-gradient(135deg, rgba(16,185,129,0.13), rgba(16,185,129,0.035));
+      border: 1px solid rgba(16,185,129,0.22);
+    }
+    .trace-conc-arrow {
+      flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 9999px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(16,185,129,0.18); color: #34d399; font-size: 1.05rem;
+    }
+    /* default: hidden, revealed by .play (set when card becomes active / brief tab opens) */
+    .trace-wrap .trace-node, .trace-wrap .trace-conclusion { opacity: 0; }
+    @keyframes spineGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    @keyframes nodeIn   { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+    @keyframes dotPop   { 0% { transform: scale(0); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+    .trace-wrap.play .trace::before  { animation: spineGrow .7s cubic-bezier(.16,1,.3,1) forwards; }
+    .trace-wrap.play .trace-node     { animation: nodeIn .5s cubic-bezier(.16,1,.3,1) both; animation-delay: calc(var(--i) * .16s + .15s); }
+    .trace-wrap.play .trace-dot      { animation: dotPop .45s cubic-bezier(.16,1,.3,1) both; animation-delay: calc(var(--i) * .16s + .2s); }
+    .trace-wrap.play .trace-conclusion { animation: nodeIn .55s cubic-bezier(.16,1,.3,1) both; animation-delay: calc(var(--n) * .16s + .28s); }
+
+    /* ══════════ DOCUMENT FAN — 비서가 건네는 서류 묶음 ══════════ */
+    .stage {
+      position: relative; width: 100%;
+      transition: height .6s cubic-bezier(.16,1,.3,1);
+    }
+    .deck {
+      position: relative; width: 100%; max-width: 52rem; margin: 0 auto;
+      transition: height .6s cubic-bezier(.16,1,.3,1);
+    }
+    .paper {
+      position: absolute; top: 0; left: 0; right: 0; margin: 0 auto;
+      transform-origin: 50% 130%;            /* pivot below → papers arc as they fan */
+      will-change: transform, opacity;
+      transition: transform .72s cubic-bezier(.18,.9,.28,1), opacity .55s ease, filter .55s ease;
+    }
+    .paper:not(.is-front) { pointer-events: none; }
+    .paper.is-front { } /* interactive layer */
+
+    /* ══════════ INTRO / LOADING ══════════ */
+    @keyframes introIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    .intro-line { opacity: 0; animation: introIn .7s cubic-bezier(.16,1,.3,1) forwards; }
+    .intro-line.d0 { animation-delay: 0s; }
+    .intro-line.d1 { animation-delay: .35s; }
+    .intro-line.d2 { animation-delay: .7s; }
+    .intro-line.d3 { animation-delay: 1.05s; }
+    #intro { transition: opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1), filter .9s ease; }
+    #intro.gone { opacity: 0; transform: translateY(-26px) scale(1.05); filter: blur(10px); pointer-events: none; }
+    #stage { opacity: 0; transition: opacity .8s ease; }
+    #stage.show { opacity: 1; }
+    .chrome { opacity: 0; transition: opacity .6s ease; }
+    .chrome.show { opacity: 1; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .paper, #intro, #stage, .deck { transition: none; }
+      .intro-line { animation: none; opacity: 1; }
+      .trace-wrap .trace-node, .trace-wrap .trace-conclusion { opacity: 1 !important; animation: none !important; }
+      .trace-wrap .trace-dot { transform: scale(1) !important; animation: none !important; }
+      .trace::before { transform: scaleY(1) !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body class="grain bg-zinc-950 text-zinc-100 font-sans antialiased min-h-[100dvh] flex flex-col">
+
+  <!-- gradient mesh -->
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-900/20 blur-[120px]"></div>
+    <div class="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-zinc-800/40 blur-[100px]"></div>
+    <div class="absolute top-[40%] right-[20%] w-[30vw] h-[30vw] rounded-full bg-emerald-950/15 blur-[80px]"></div>
+  </div>
+
+  <!-- ══════════ TOP BAR ══════════ -->
+  <header class="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7">
+    <div class="flex items-center justify-between">
+      <a href="landing.html" class="flex items-center gap-2.5 text-zinc-100 no-underline">
+        <div class="w-9 h-9 rounded-lg bg-accent-500 flex items-center justify-center">
+          <iconify-icon icon="solar:letter-bold" class="text-white text-lg"></iconify-icon>
+        </div>
+        <span class="leading-tight">
+          <span class="block font-bold text-lg tracking-tight">Job.is</span>
+          <span class="block text-[10px] text-zinc-500 -mt-0.5">AI 취업 비서</span>
+        </span>
+      </a>
+      <div class="text-right text-xs text-zinc-500 leading-relaxed">
+        <span class="block tnum">2026. 5. 27. (화) 오전 7:30</span>
+        <span class="block kr-text">내 조건 · 비전공 · 백엔드 희망</span>
+      </div>
+    </div>
+    <div class="mt-4 flex items-baseline gap-2">
+      <h1 class="font-display text-xl sm:text-2xl font-bold tracking-tight">오늘의 추천</h1>
+      <span class="text-sm text-zinc-500 kr-text">당신만을 위한 <span class="tnum text-accent-400 font-semibold">5건</span></span>
+    </div>
+  </header>
+
+  <!-- ══════════ CARD DECK ══════════ -->
+  <main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 flex items-center">
+    <div class="w-full relative">
+
+      <!-- side arrows -->
+      <button id="prevD" class="chrome arrow-btn hidden lg:flex absolute -left-16 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass items-center justify-center text-zinc-300" aria-label="이전">
+        <iconify-icon icon="solar:alt-arrow-left-linear" class="text-2xl"></iconify-icon>
+      </button>
+      <button id="nextD" class="chrome arrow-btn hidden lg:flex absolute -right-16 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full glass items-center justify-center text-zinc-300" aria-label="다음">
+        <iconify-icon icon="solar:alt-arrow-right-linear" class="text-2xl"></iconify-icon>
+      </button>
+
+      <!-- ══════════ INTRO / LOADING ══════════ -->
+      <div id="intro" class="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-6 gap-3">
+        <h2 class="intro-line d0 font-display text-3xl sm:text-4xl font-bold tracking-tight flex items-center gap-2.5">
+          <iconify-icon icon="solar:sun-2-bold" class="text-amber-400 text-4xl"></iconify-icon>
+          좋은 아침입니다
+        </h2>
+        <p class="intro-line d1 text-lg sm:text-xl text-zinc-300 kr-text">
+          오늘 들어온 공고 <b class="tnum text-zinc-100 font-semibold">847건</b>을 검토했습니다.
+        </p>
+        <p class="intro-line d2 text-lg sm:text-xl text-zinc-300 kr-text">
+          당신에게 맞는 <b class="tnum text-accent-400 font-semibold">단 5건</b>만 추렸습니다.
+        </p>
+        <p class="intro-line d3 text-sm text-zinc-500 kr-text mt-1">오늘은 성장기 스타트업과 데이터 직무 위주로 골랐습니다.</p>
+        <div class="intro-line d3 mt-5 flex items-center gap-2 text-xs text-zinc-600">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse"></span>
+          추천을 정리하는 중…
+        </div>
+      </div>
+
+      <!-- document fan — papers injected by JS -->
+      <div id="stage" class="stage">
+        <div id="prism" class="deck"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══════════ NAV (counter + dots + mobile arrows) ══════════ -->
+  <footer class="chrome w-full max-w-5xl mx-auto px-4 sm:px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+    <div class="flex items-center justify-center gap-5">
+      <button id="prevM" class="arrow-btn lg:hidden w-11 h-11 rounded-full glass flex items-center justify-center text-zinc-300" aria-label="이전">
+        <iconify-icon icon="solar:alt-arrow-left-linear" class="text-xl"></iconify-icon>
+      </button>
+      <div class="flex flex-col items-center gap-2">
+        <div class="tnum font-display text-sm text-zinc-400"><span id="cur" class="text-zinc-100 font-bold">01</span> <span class="text-zinc-600">/</span> <span id="total">05</span></div>
+        <div id="dots" class="flex items-center gap-1.5"></div>
+      </div>
+      <button id="nextM" class="arrow-btn lg:hidden w-11 h-11 rounded-full glass flex items-center justify-center text-zinc-300" aria-label="다음">
+        <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xl"></iconify-icon>
+      </button>
+    </div>
+    <p class="mt-4 text-center text-[11px] text-zinc-600 kr-text">오늘도 좋은 결과 있으시길 바랍니다. &mdash; Job.is 드림</p>
+  </footer>
+
+  <script>
+    const JOBS = [
+      {
+        logo:'S', match:92, reason:'백엔드 · 데이터 관심사',
+        title:'주니어 백엔드 엔지니어',
+        company:'<span class="text-zinc-100 font-semibold">스택플로우</span> · 클라우드 데이터 플랫폼 · 서울',
+        desc:'대용량 데이터를 저장·처리하는 클라우드 데이터 플랫폼. 분산 스토리지가 핵심 제품입니다.',
+        sectors:['클라우드','데이터 인프라','B2B SaaS'], loc:'서울 강남 · 출근',
+        chips:['신입·주니어','서울 강남','연봉 비공개',['D-12','rose']],
+        brief:'백엔드로 커리어를 시작하려는 <b class="text-accent-300 font-medium">당신에게</b> 가장 먼저 추천드립니다. 스택플로우는 신입을 시니어와 페어로 붙여 키우는 문화라, CS 기초만 탄탄하면 대규모 분산 시스템을 직접 만지며 빠르게 성장하실 수 있습니다. 최근 1년 직원이 40% 늘고 누적 $389M를 투자받은 성장기라 기회는 많지만, 그만큼 빠른 적응이 필요한 점은 미리 말씀드립니다.',
+        fits:['신입 → 시니어 페어 프로그래밍 온보딩','Python / Go — 토이 프로젝트 경험이면 충분','잡플래닛 4.0 · 성장기 스타트업'],
+        why:[
+          {src:'성향', text:'끝까지 파고드는 <b class="text-zinc-100">탐구형(상위 12%)</b> — 디버깅·최적화가 핵심인 이 직무와 잘 맞습니다.'},
+          {src:'자소서', text:'“막히면 새벽까지 원인을 추적한다”고 쓰신 부분이, 분산 시스템 트러블슈팅 업무와 연결됩니다.'},
+          {src:'활동', text:'최근 저장한 공고 중 <b class="text-zinc-100">백엔드·데이터</b> 키워드 비중이 가장 높았어요.'},
+        ],
+        role:['대용량 데이터 파이프라인의 백엔드 API 설계·개발 <span class="text-zinc-500">(Python / Go)</span>','분산 스토리지 메타데이터 서비스 성능 개선·모니터링','시니어와 페어 프로그래밍하며 코드 리뷰 참여'],
+        req:['CS 기초<span class="text-zinc-500">(자료구조·네트워크·OS)</span>에 대한 단단한 이해','하나 이상의 백엔드 언어로 토이 프로젝트 경험','모르는 걸 끝까지 파고드는 호기심과 협업 태도'],
+        co:{ growth:'+40% <span class="text-zinc-500">(최근 1년)</span>', rating:'★ 4.0', funding:'$389M · 시리즈 D', note:'빠르게 크는 성장기 — 기회는 많지만 그만큼 빠른 적응이 필요합니다.' },
+        companyName:'스택플로우',
+        axes:{
+          growth:     {state:'met',       verdict:'신입을 시니어와 페어로 키워요. 당신이 1순위로 보는 <b class="text-accent-300">\'사수\'가 확실</b>합니다.'},
+          salary:     {state:'estimated', verdict:'공고엔 비공개지만, 비슷한 신입 백엔드 기준 <b class="text-zinc-100 tnum">4,500~5,000</b>으로 추정돼요. 기대 범위 안쪽입니다.'},
+          eligibility:{state:'met',       verdict:'비전공이어도 CS 기초 + 토이프로젝트면 지원 가능 — <b class="text-accent-300">당신은 충족</b>합니다.'},
+          wlb:        {state:'met',       verdict:'강남 출근이지만 유연근무가 있어요.'},
+          stability:  {state:'caution',   verdict:'시리즈 D로 빠르게 크는 중이라 기회는 많지만, <b class="text-amber-300">그만큼 빠른 적응이 필요</b>해요.'},
+          process:    {state:'met',       verdict:'코테(파이썬 가능) → 과제 없음 → 페어 면접. 부담 낮은 편이에요.'},
+          culture:    {state:'met',       verdict:'잡플래닛 4.0, 수평적인 분위기예요.'},
+        },
+      },
+      {
+        logo:'P', match:87, reason:'데이터 파이프라인 경험',
+        title:'데이터 엔지니어',
+        company:'<span class="text-zinc-100 font-semibold">페이브</span> · 핀테크 결제 · 서울 송파',
+        desc:'하루 수억 건의 결제를 처리하는 핀테크 결제 인프라 회사입니다.',
+        sectors:['핀테크','결제','B2B'], loc:'서울 송파',
+        chips:['1~3년','서울 송파',['연봉 공개 5,000~7,000','accent'],'상시채용'],
+        brief:'결제 데이터를 깊게 다뤄보고 싶은 <b class="text-accent-300 font-medium">당신에게</b> 추천드립니다. 페이브는 하루 수억 건 결제 로그를 처리하는 핀테크라, 데이터 엔지니어가 파이프라인 설계를 처음부터 끝까지 책임집니다. 연봉이 공개돼 있고 범위도 명확해, 협상 부담이 적다는 점도 함께 보고드립니다.',
+        fits:['실시간 스트리밍(Kafka) 실무','연봉 공개 · 5,000~7,000만','수평적 데이터팀 · 빠른 의사결정'],
+        why:[
+          {src:'성향', text:'규칙과 구조를 먼저 세우는 <b class="text-zinc-100">체계형</b> — 데이터 파이프라인 설계 직무와 결이 같습니다.'},
+          {src:'자소서', text:'“숫자로 결과를 증명하는 일이 즐겁다”는 문장이 결제 지표를 다루는 업무와 맞닿아 있어요.'},
+          {src:'활동', text:'공고를 볼 때 <b class="text-zinc-100">연봉 공개</b> 필터를 자주 쓰셨기에, 보상이 투명한 곳을 우선했습니다.'},
+        ],
+        role:['결제 데이터 수집·정제 파이프라인 설계 및 운영','실시간 스트리밍<span class="text-zinc-500">(Kafka)</span> 기반 데이터 처리','결제 지표 대시보드용 데이터 모델링'],
+        req:['SQL·데이터 모델링에 대한 탄탄한 이해','Python 등으로 ETL 파이프라인을 구축해 본 경험','대용량 데이터를 다뤄본 경험 우대'],
+        co:{ growth:'+25% <span class="text-zinc-500">(최근 1년)</span>', rating:'★ 4.2', funding:'$120M · 시리즈 C', note:'결제 시장 점유율을 빠르게 늘리는 핀테크 — 데이터로 의사결정하는 문화가 강합니다.' },
+        companyName:'페이브',
+        axes:{
+          growth:     {state:'met',       verdict:'데이터팀이 수평적이라 결제 파이프라인을 처음부터 끝까지 주도하며 배워요.'},
+          salary:     {state:'met',       verdict:'연봉이 <b class="text-accent-300">공개(5,000~7,000)</b>라 협상 부담이 적어요. 기대 범위 안쪽입니다.'},
+          eligibility:{state:'caution',   verdict:'1~3년 선호라 완전 신입엔 다소 도전적이지만, <b class="text-amber-300">데이터 토이프로젝트</b>가 있으면 해볼 만해요.'},
+          wlb:        {state:'met',       verdict:'송파 출근, 수평적이고 의사결정이 빨라요.'},
+          stability:  {state:'met',       verdict:'시리즈 C·$120M, 결제 점유율을 빠르게 늘리는 중이에요.'},
+          process:    {state:'met',       verdict:'코테 → 데이터 과제 → 기술 면접. 과제 부담은 적은 편이에요.'},
+          culture:    {state:'met',       verdict:'잡플래닛 4.2, 데이터로 의사결정하는 문화예요.'},
+        },
+      },
+      {
+        logo:'R', match:79, reason:'쿠버네티스 · 인프라 관심',
+        title:'플랫폼 엔지니어',
+        company:'<span class="text-zinc-100 font-semibold">리버스</span> · 개발자 도구 · 원격 근무',
+        desc:'개발자 생산성을 높이는 개발자 도구를 만드는 원격 중심 팀입니다.',
+        sectors:['개발자 도구','DevOps','SaaS'], loc:'원격 · 출근 의무 없음',
+        chips:['2~5년','원격 가능','연봉 협의',['D-5','rose']],
+        brief:'인프라를 끝까지 파고들고 싶은 <b class="text-accent-300 font-medium">당신에게</b> 추천드립니다. 리버스는 원격이 기본인 30명 규모 팀으로, 쿠버네티스 기반 플랫폼을 소수 정예가 운영합니다. 다만 마감이 5일밖에 남지 않아 빠른 결정이 필요한 점을 강조드립니다. 자율성과 책임이 큰 환경을 원하신다면 매력적입니다.',
+        fits:['원격 근무 기본 · 출근 의무 없음','쿠버네티스 · IaC 중심 스택','소수정예 · 높은 자율성'],
+        why:[
+          {src:'성향', text:'스스로 일을 끌고 가는 <b class="text-zinc-100">독립형</b> — 원격·소수정예 환경에서 강점을 냅니다.'},
+          {src:'자소서', text:'“혼자서도 끝까지 책임지고 마무리한다”는 표현이 높은 오너십을 요구하는 이 팀과 맞아요.'},
+          {src:'활동', text:'<b class="text-zinc-100">쿠버네티스</b> 키워드 알림을 설정해두셔서 우선 노출했습니다.'},
+        ],
+        role:['쿠버네티스 기반 사내 플랫폼 운영·자동화','IaC<span class="text-zinc-500">(Terraform)</span>로 인프라 코드화','개발자 생산성 도구 설계·배포'],
+        req:['쿠버네티스 운영 경험 2년 이상','리눅스·네트워크에 대한 깊은 이해','문서로 소통하며 비동기 협업이 가능한 분'],
+        co:{ growth:'+15% <span class="text-zinc-500">(최근 1년)</span>', rating:'★ 4.4', funding:'비공개 · 부트스트랩', note:'30명 규모 원격 팀 — 자율과 책임이 크고 의사결정이 빠릅니다.' },
+        companyName:'리버스',
+        axes:{
+          growth:     {state:'met',       verdict:'쿠버네티스 인프라를 소수정예로 깊게 다뤄요. 성장 폭이 큽니다.'},
+          salary:     {state:'estimated', verdict:'협의라 비공개지만, 플랫폼 2~5년 기준 <b class="text-zinc-100 tnum">5,500~7,000</b>으로 추정돼요.'},
+          eligibility:{state:'caution',   verdict:'<b class="text-amber-300">쿠버네티스 2년+</b>를 요구해, 신입에겐 진입장벽이 높습니다.'},
+          wlb:        {state:'met',       verdict:'원격 기본 · 출근 의무 없음 — 자율적인 근무 형태예요.'},
+          stability:  {state:'caution',   verdict:'부트스트랩 30명 규모, <b class="text-amber-300">마감 D-5</b>로 빠른 결정이 필요해요.'},
+          process:    {state:'met',       verdict:'서류 → 비동기 과제 → 화상 면접.'},
+          culture:    {state:'met',       verdict:'잡플래닛 4.4, 문서 기반 비동기 협업이에요.'},
+        },
+      },
+      {
+        logo:'N', match:74, reason:'AI 서빙 백엔드',
+        title:'ML 플랫폼 백엔드 엔지니어',
+        company:'<span class="text-zinc-100 font-semibold">노바AI</span> · 생성형 AI · 서울 성수',
+        desc:'생성형 AI 모델을 안정적으로 서빙하는 인프라에 집중하는 AI 스타트업입니다.',
+        sectors:['생성형 AI','MLOps','인프라'], loc:'서울 성수 · 출근',
+        chips:['주니어 환영','서울 성수','연봉 비공개','상시채용'],
+        brief:'AI를 서비스로 만드는 일에 관심 있는 <b class="text-accent-300 font-medium">당신에게</b> 추천드립니다. 노바AI는 모델 자체보다 <b class="text-zinc-100">모델을 안정적으로 서빙하는 백엔드</b>에 집중하는 팀입니다. 트래픽이 튀는 추론 API를 다루며, AI 붐의 한가운데서 인프라 역량을 키우실 수 있다고 판단해 보고드립니다.',
+        fits:['추론 API · GPU 스케줄링 경험 쌓기','모델보다 서빙·인프라 중심','시드 직후 · 지분 보상 협의 가능'],
+        why:[
+          {src:'성향', text:'새 기술을 빠르게 흡수하는 <b class="text-zinc-100">학습형(상위 8%)</b> — 변화가 빠른 AI 스택에 잘 적응합니다.'},
+          {src:'자소서', text:'“트렌드를 좇기보다 직접 만들어보며 익힌다”는 태도가 추론 인프라 실험과 맞습니다.'},
+          {src:'활동', text:'최근 <b class="text-zinc-100">AI·MLOps</b> 관련 글을 가장 오래 읽으셨어요.'},
+        ],
+        role:['추론 API 서버 설계·운영 및 GPU 스케줄링','모델 서빙 파이프라인 안정화·최적화','트래픽 급증 대응 오토스케일링 구축'],
+        req:['백엔드 개발 경험 또는 강한 학습 의지','컨테이너·클라우드에 대한 기본 이해','AI/ML 서비스에 대한 관심'],
+        co:{ growth:'신생 <span class="text-zinc-500">(시드 직후)</span>', rating:'★ 신규', funding:'$8M · 시드', note:'생성형 AI 붐의 한가운데 — 보상에 지분이 포함되며 변동성이 큽니다.' },
+        companyName:'노바AI',
+        axes:{
+          growth:     {state:'met',       verdict:'AI 서빙 인프라를 바닥부터 다뤄요. 주니어 환영이라 빠르게 큽니다.'},
+          salary:     {state:'estimated', verdict:'비공개지만, 시드 단계 주니어 백엔드 기준 <b class="text-zinc-100 tnum">4,000~4,800</b> + 지분으로 추정돼요.'},
+          eligibility:{state:'met',       verdict:'백엔드 경험 또는 <b class="text-accent-300">강한 학습 의지</b>면 지원 가능 — 당신은 충족합니다.'},
+          wlb:        {state:'met',       verdict:'성수 출근, 빠르게 움직이는 팀이에요.'},
+          stability:  {state:'caution',   verdict:'시드 직후 $8M — <b class="text-amber-300">보상에 지분이 포함</b>되고 변동성이 큽니다.'},
+          process:    {state:'met',       verdict:'코테 → 시스템 설계 면접. 모델 지식은 깊게 보지 않아요.'},
+          culture:    {state:'met',       verdict:'생성형 AI 붐의 한가운데, 실험적인 분위기예요.'},
+        },
+      },
+      {
+        logo:'C', match:68, reason:'대용량 트래픽 처리',
+        title:'서버 개발자 (커머스)',
+        company:'<span class="text-zinc-100 font-semibold">카트리</span> · 이커머스 · 서울 강남',
+        desc:'이미 흑자를 낸 대규모 이커머스 서비스를 운영하는 회사입니다.',
+        sectors:['이커머스','커머스 플랫폼','B2C'], loc:'서울 강남 · 출근',
+        chips:['1~4년','서울 강남',['연봉 4,200~6,000','accent'],'D-20'],
+        brief:'안정적인 대규모 서비스를 경험하고 싶은 <b class="text-accent-300 font-medium">당신에게</b> 추천드립니다. 카트리는 이미 손익분기를 넘긴 흑자 커머스라, 성장성과 안정성을 함께 가져가실 수 있습니다. 세일 트래픽 피크를 견디는 백엔드 최적화를 실무로 배우실 수 있어 추천드립니다.',
+        fits:['흑자 기업 · 고용 안정성','대규모 트래픽·캐싱 최적화 실무','연봉 공개 · 명확한 평가 체계'],
+        why:[
+          {src:'성향', text:'안정 속 성장을 선호하는 <b class="text-zinc-100">균형형</b> — 흑자 기업의 성장 직무가 잘 맞습니다.'},
+          {src:'자소서', text:'“큰 트래픽을 안정적으로 버티게 하는 일에 보람을 느낀다”는 문장과 직결됩니다.'},
+          {src:'활동', text:'<b class="text-zinc-100">대용량 트래픽</b> 관련 공고를 반복해서 다시 보셨어요.'},
+        ],
+        role:['커머스 백엔드 API 개발·운영','세일 트래픽 피크 대응 캐싱·최적화','주문·결제 도메인 안정성 개선'],
+        req:['웹 백엔드 개발 경험 1년 이상','RDB·캐시<span class="text-zinc-500">(Redis)</span> 활용 경험','대규모 트래픽 환경에 대한 관심'],
+        co:{ growth:'+18% <span class="text-zinc-500">(최근 1년)</span>', rating:'★ 4.1', funding:'흑자 전환 · 시리즈 B', note:'이미 흑자인 안정 커머스 — 성장성과 고용 안정성을 함께 가져갑니다.' },
+        companyName:'카트리',
+        axes:{
+          growth:     {state:'met',       verdict:'세일 트래픽 피크를 견디는 대규모 최적화를 실무로 배워요.'},
+          salary:     {state:'met',       verdict:'연봉 <b class="text-accent-300">공개(4,200~6,000)</b>에 평가 체계가 명확해요.'},
+          eligibility:{state:'caution',   verdict:'웹 백엔드 1년+ 선호라 완전 신입엔 살짝 도전적 — <b class="text-amber-300">RDB·캐시 경험</b>이 있으면 해볼 만해요.'},
+          wlb:        {state:'met',       verdict:'강남 출근, 평가 체계가 또렷해요.'},
+          stability:  {state:'met',       verdict:'이미 <b class="text-accent-300">흑자</b> — 고용 안정성이 높아요.'},
+          process:    {state:'met',       verdict:'코테 → 과제 → 기술/임원 면접.'},
+          culture:    {state:'met',       verdict:'잡플래닛 4.1, 안정 속 성장을 지향해요.'},
+        },
+      },
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const N = JOBS.length;
+    let cur = 0, opened = false;
+    const fb = {};
+
+    // ── 고려 매트릭스 (Variation B) — 유저 Top3 가치로 판정 ──
+    const USER = { priorities: ['growth','salary','eligibility','wlb','stability','process','culture'] };
+    const AXIS = {
+      growth:      {label:'성장 환경',   short:'성장',   icon:'solar:graph-up-bold'},
+      salary:      {label:'연봉',        short:'연봉',   icon:'solar:wallet-money-bold'},
+      eligibility: {label:'자격',        short:'자격',   icon:'solar:clipboard-check-bold'},
+      wlb:         {label:'워라밸·근무',  short:'근무',   icon:'solar:scale-bold'},
+      stability:   {label:'안정성',      short:'안정성', icon:'solar:buildings-3-bold'},
+      process:     {label:'전형',        short:'전형',   icon:'solar:test-tube-bold'},
+      culture:     {label:'문화·평판',   short:'문화',   icon:'solar:star-bold'},
+    };
+    const STATE = {
+      met:       {bar:'bg-accent-500', tint:'bg-accent-500/15', text:'text-accent-300', icon:'solar:check-circle-bold',    label:'충족'},
+      caution:   {bar:'bg-amber-500',  tint:'bg-amber-500/15',  text:'text-amber-300',  icon:'solar:danger-triangle-bold', label:'주의'},
+      estimated: {bar:'bg-zinc-500',   tint:'bg-zinc-600/25',   text:'text-zinc-400',   icon:'solar:chart-2-linear',       label:'추정'},
+    };
+    function pickAxes(job){
+      const order = USER.priorities.filter(k => job.axes[k]);
+      let chosen = order.slice(0, 3);
+      if (!chosen.some(k => job.axes[k].state === 'caution')) {   // 솔직함: 약점 하나는 끌어올려 노출
+        const c = order.find(k => job.axes[k].state === 'caution' && !chosen.includes(k));
+        if (c) chosen[chosen.length - 1] = c;
+      }
+      return chosen;
+    }
+    function matrixHTML(job){
+      if (!job.axes) return '';   // 프로토타입: axes 있는 공고만 매트릭스 노출
+      const chosen = pickAxes(job);
+      const rows = chosen.map(k => {
+        const a = job.axes[k], ax = AXIS[k], st = STATE[a.state];
+        return `<div class="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-white/[0.07] p-4 pl-5">
+            <span class="absolute left-0 top-0 bottom-0 w-1 ${st.bar}"></span>
+            <div class="flex items-start gap-3">
+              <div class="shrink-0 w-9 h-9 rounded-lg ${st.tint} flex items-center justify-center ${st.text}"><iconify-icon icon="${ax.icon}" class="text-lg"></iconify-icon></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2 mb-0.5">
+                  <p class="text-[13px] font-semibold text-zinc-300">${ax.label}</p>
+                  <span class="text-[11px] font-bold ${st.text} flex items-center gap-1"><iconify-icon icon="${st.icon}"></iconify-icon>${st.label}</span>
+                </div>
+                <p class="text-[15px] leading-relaxed text-zinc-200 kr-text">${a.verdict}</p>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+      const restShorts = USER.priorities.filter(k => job.axes[k] && !chosen.includes(k) && job.axes[k].state === 'met').slice(0, 3).map(k => AXIS[k].short);
+      const rest = restShorts.length
+        ? `<p class="mt-5 flex items-center gap-1.5 text-[13px] text-zinc-500 kr-text"><iconify-icon icon="solar:check-read-linear" class="text-accent-500/70"></iconify-icon>${restShorts.join('·')}도 확인했고 큰 문제 없었어요.</p>`
+        : '';
+      return `
+        <div class="mt-7 pt-6 border-t border-white/10">
+          <div class="flex items-center gap-1.5 mb-1 text-accent-400 text-[11px] font-semibold tracking-[0.14em] uppercase">
+            <iconify-icon icon="solar:checklist-minimalistic-bold" class="text-sm"></iconify-icon>
+            당신의 기준으로 따져봤어요
+          </div>
+          <p class="text-[15px] text-zinc-400 kr-text mb-4">${job.companyName ? job.companyName + '를' : '이 회사를'} <b class="text-zinc-200 font-semibold">당신이 가장 중요하게 보는 세 가지</b>로 따져봤어요.</p>
+          <div class="space-y-2.5">${rows}</div>
+          ${rest}
+        </div>`;
+    }
+
+    const chipHTML = (c) => {
+      if (Array.isArray(c)) {
+        const [text, tone] = c;
+        const cls = tone === 'rose'
+          ? 'bg-rose-500/12 border-rose-500/25 text-rose-300'
+          : 'bg-accent-500/12 border-accent-500/25 text-accent-300';
+        return `<span class="inline-flex items-center px-3 py-1.5 rounded-full border ${cls} text-sm font-medium">${text}</span>`;
+      }
+      return `<span class="inline-flex items-center px-3 py-1.5 rounded-full bg-zinc-800/50 border border-zinc-700/40 text-sm text-zinc-300">${c}</span>`;
+    };
+
+    function faceHTML(j, idx) {
+      const chips = j.chips.map(chipHTML).join('');
+      const sectors = (j.sectors || []).map(s =>
+        `<span class="px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-[12px] text-zinc-300 kr-text">${s}</span>`
+      ).join('');
+      const glanceItem = (label, val) =>
+        `<div class="flex flex-col gap-0.5"><dt class="text-[11px] text-zinc-500">${label}</dt><dd class="text-[14px] text-zinc-200 kr-text">${val}</dd></div>`;
+      const SRC_ICON = { '성향':'solar:chart-2-bold', '자소서':'solar:document-text-bold', '활동':'solar:cursor-square-bold' };
+      const trace = j.why.map((w, i) =>
+        `<li class="trace-node" style="--i:${i}">
+          <span class="trace-dot"></span>
+          <span class="trace-src"><iconify-icon icon="${SRC_ICON[w.src] || 'solar:bolt-bold'}"></iconify-icon>${w.src}</span>
+          <p class="trace-text kr-text">${w.text}</p>
+        </li>`
+      ).join('');
+      const fits = j.fits.map(f =>
+        `<li class="flex gap-3 text-base text-zinc-300 kr-text"><iconify-icon icon="solar:check-circle-bold" class="text-accent-500 text-xl mt-0.5 shrink-0"></iconify-icon><span>${f}</span></li>`
+      ).join('');
+      const role = j.role.map(r =>
+        `<li class="flex gap-3 text-base text-zinc-300 kr-text"><iconify-icon icon="solar:check-circle-bold" class="text-accent-500 text-xl mt-0.5 shrink-0"></iconify-icon><span>${r}</span></li>`
+      ).join('');
+      const req = j.req.map(r =>
+        `<li class="flex gap-3 text-base text-zinc-300 kr-text"><iconify-icon icon="solar:arrow-right-linear" class="text-zinc-500 text-xl mt-0.5 shrink-0"></iconify-icon><span>${r}</span></li>`
+      ).join('');
+      const ring = `conic-gradient(#10b981 ${j.match*3.6}deg, rgba(255,255,255,0.08) 0)`;
+
+      return `
+      <div class="paper" data-idx="${idx}">
+        <article class="brief-card rounded-3xl p-7 sm:p-10 relative overflow-hidden">
+          <div class="absolute -top-16 -right-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-[70px] pointer-events-none"></div>
+          <div class="relative">
+            <!-- ══ MASTHEAD ══ -->
+            <div class="masthead-rule flex items-end justify-between pb-3.5">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-md bg-accent-500 flex items-center justify-center">
+                  <iconify-icon icon="solar:letter-bold" class="text-white text-sm"></iconify-icon>
+                </div>
+                <div class="leading-none">
+                  <span class="font-display font-extrabold tracking-tight text-zinc-100">Job.is</span>
+                  <span class="text-zinc-500 font-medium tracking-[0.2em] text-[10px] ml-1.5 uppercase">Daily</span>
+                </div>
+              </div>
+              <div class="text-right leading-tight">
+                <div class="tnum text-[11px] text-zinc-400">2026. 5. 27. (화)</div>
+                <div class="text-[10px] text-zinc-600 tracking-wide kr-text">VOL.01 · 오늘의 ${idx + 1}번째 편지</div>
+              </div>
+            </div>
+
+            <!-- ══ HEADLINE + 우표 도장 ══ -->
+            <div class="mt-7 flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 mb-2.5 text-accent-400 text-[12px] font-semibold tracking-wide kr-text">
+                  <span class="relative flex h-1.5 w-1.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-500"></span>
+                  </span>
+                  추천 이유 · ${j.reason}
+                </div>
+                <h2 class="font-display text-[1.9rem] sm:text-[2.4rem] font-bold tracking-tight leading-[1.14] text-zinc-50 kr-text balance">${j.title}</h2>
+                <p class="mt-2.5 text-[15px] text-zinc-400 kr-text">${j.company}</p>
+              </div>
+              <div class="seal shrink-0">
+                <span class="seal-label">적합도</span>
+                <span class="seal-num tnum">${j.match}<span class="seal-pct">%</span></span>
+              </div>
+            </div>
+
+            <!-- chips -->
+            <div class="mt-5 flex flex-wrap gap-2">${chips}</div>
+
+            <!-- ══ 회사 한눈에 — At a Glance (탭 위, 항상 노출) ══ -->
+            <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+              <div class="flex items-center gap-1.5 mb-3 text-zinc-400 text-[11px] font-semibold tracking-[0.14em] uppercase">
+                <iconify-icon icon="solar:buildings-3-bold" class="text-sm"></iconify-icon>
+                At a Glance · 회사 한눈에
+              </div>
+              <p class="text-[15px] leading-relaxed text-zinc-200 kr-text">${j.desc || ''}</p>
+              <div class="mt-3 flex flex-wrap gap-1.5">${sectors}</div>
+              <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
+                ${glanceItem('위치 · 근무', j.loc || '—')}
+                ${glanceItem('규모 · 성장', j.co.growth)}
+                ${glanceItem('투자 단계', j.co.funding)}
+                ${glanceItem('평판', j.co.rating + ' <span class="text-zinc-500 text-[12px]">잡플래닛</span>')}
+              </dl>
+            </div>
+
+            <!-- TAB BAR -->
+            <div class="mt-6 flex items-center gap-1 border-b border-white/10">
+              <button data-tab="brief" data-idx="${idx}" class="tab tab-on">브리핑</button>
+              <button data-tab="cond"  data-idx="${idx}" class="tab">조건</button>
+              <button data-tab="co"    data-idx="${idx}" class="tab">회사</button>
+            </div>
+
+            <!-- PANELS -->
+            <div class="mt-6">
+              <!-- 브리핑 -->
+              <div data-panel="brief">
+                <div class="flex items-center gap-1.5 mb-3 text-accent-400 text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  <iconify-icon icon="solar:pen-2-bold" class="text-sm"></iconify-icon>
+                  Editor's Note · 비서의 노트
+                </div>
+                <p class="letter-body kr-text">${j.brief}</p>
+
+                <!-- ★ 고려 매트릭스 — 당신의 Top3 기준으로 따져봤어요 -->
+                ${matrixHTML(j)}
+
+                <!-- ★ 추천 근거 쓰레드 — 너의 신호 → 이 공고 -->
+                <div class="trace-wrap mt-7 pt-6 border-t border-white/10" style="--n:${j.why.length}">
+                  <div class="flex items-center gap-1.5 mb-1 text-accent-400 text-[11px] font-semibold tracking-[0.14em] uppercase">
+                    <iconify-icon icon="solar:user-heart-bold" class="text-sm"></iconify-icon>
+                    당신이라서 더 맞아요
+                  </div>
+                  <p class="text-[15px] text-zinc-400 kr-text mb-5">조건만이 아니라, 일하는 방식과 성향까지 봤어요.</p>
+                  <ul class="trace">${trace}</ul>
+                  <div class="trace-conclusion">
+                    <span class="trace-conc-arrow"><iconify-icon icon="solar:arrow-down-linear"></iconify-icon></span>
+                    <div class="min-w-0">
+                      <span class="block text-[11px] text-zinc-500 kr-text">그래서, 오늘 이 공고를 골랐습니다</span>
+                      <p class="text-zinc-100 font-semibold kr-text leading-snug">${j.title} <span class="tnum text-accent-400">· ${j.match}% 일치</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-7 pt-6 border-t border-white/10">
+                  <p class="text-xs font-semibold tracking-wider text-zinc-500 mb-4">이 자리의 좋은 점</p>
+                  <ul class="space-y-3.5">${fits}</ul>
+                </div>
+
+                <!-- ✍︎ 서명 — 비서의 사인오프 -->
+                <div class="mt-8 flex items-center gap-3">
+                  <div class="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-accent-400 to-emerald-700 flex items-center justify-center font-display font-extrabold text-zinc-950">J</div>
+                  <div class="leading-tight">
+                    <p class="text-[15px] text-zinc-200 kr-text">오늘도 좋은 결과 있으시길 바랍니다.</p>
+                    <p class="text-[11px] text-zinc-500 mt-0.5">— Job.is 비서 드림</p>
+                  </div>
+                </div>
+              </div>
+              <!-- 조건 -->
+              <div data-panel="cond" hidden>
+                <div class="flex items-center gap-1.5 mb-3 text-accent-400 text-xs font-semibold tracking-wide">
+                  <iconify-icon icon="solar:checklist-minimalistic-bold" class="text-sm"></iconify-icon>
+                  이런 일을 해요
+                </div>
+                <ul class="space-y-3">${role}</ul>
+                <div class="mt-7 pt-6 border-t border-white/10">
+                  <div class="flex items-center gap-1.5 mb-3 text-zinc-400 text-xs font-semibold tracking-wide">
+                    <iconify-icon icon="solar:user-check-rounded-linear" class="text-sm"></iconify-icon>
+                    이런 분을 찾아요
+                  </div>
+                  <ul class="space-y-3">${req}</ul>
+                </div>
+              </div>
+              <!-- 회사 -->
+              <div data-panel="co" hidden>
+                <div class="space-y-3.5 text-base">
+                  <div class="flex items-center justify-between"><span class="text-zinc-400">직원 증가</span><span class="tnum font-semibold text-accent-400">${j.co.growth}</span></div>
+                  <div class="flex items-center justify-between border-t border-white/5 pt-3.5"><span class="text-zinc-400">잡플래닛 평점</span><span class="font-semibold text-amber-400">${j.co.rating}</span></div>
+                  <div class="flex items-center justify-between border-t border-white/5 pt-3.5"><span class="text-zinc-400">누적 투자</span><span class="tnum font-semibold text-zinc-100">${j.co.funding}</span></div>
+                </div>
+                <div class="mt-6 pt-6 border-t border-white/10">
+                  <div class="flex items-center gap-1.5 mb-2 text-accent-400 text-xs font-semibold tracking-wide">
+                    <iconify-icon icon="solar:lightbulb-bold" class="text-sm"></iconify-icon>
+                    Job.is 한줄 분석
+                  </div>
+                  <p class="text-[15px] leading-relaxed text-zinc-400 kr-text">${j.co.note}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- feedback + actions -->
+            <div class="mt-7 pt-6 border-t border-white/10">
+              <div class="flex items-center justify-between gap-3">
+                <span class="fbLabel text-sm text-zinc-500 kr-text">이 추천, 어떤가요?</span>
+                <div class="flex items-center gap-1.5">
+                  <button data-fb="up" data-idx="${idx}" class="fb-btn w-10 h-10 rounded-lg flex items-center justify-center text-zinc-500 hover:text-accent-400" aria-label="좋아요"><iconify-icon icon="solar:like-linear" class="text-xl"></iconify-icon></button>
+                  <button data-fb="down" data-idx="${idx}" class="fb-btn w-10 h-10 rounded-lg flex items-center justify-center text-zinc-500 hover:text-rose-400" aria-label="별로예요"><iconify-icon icon="solar:dislike-linear" class="text-xl"></iconify-icon></button>
+                </div>
+              </div>
+              <div class="mt-5 flex items-center gap-3">
+                <button class="px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 text-zinc-400 hover:text-zinc-100 transition-colors"><iconify-icon icon="solar:bookmark-linear" class="text-lg"></iconify-icon><span class="font-medium">저장</span></button>
+                <a href="#" class="magnetic-cta flex-1 py-3.5 rounded-xl bg-accent-500 hover:bg-accent-400 text-zinc-950 font-bold text-lg flex items-center justify-center gap-2 no-underline">지원하기 <iconify-icon icon="solar:arrow-right-linear" class="arrow-icon text-xl"></iconify-icon></a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>`;
+    }
+
+    const stage = $('stage'), deck = $('prism');
+    deck.innerHTML = JOBS.map(faceHTML).join('');
+    const papers = [...deck.children];
+
+    // transform for one paper at signed distance d from the front sheet
+    function place(d) {
+      const ad = Math.abs(d), sign = Math.sign(d), cap = Math.min(ad, 3);
+      if (!opened) {                          // closed bundle — sheets stacked behind the front one
+        return { t: `translateX(0px) translateY(${cap * 3}px) rotate(0deg) scale(${1 - cap * 0.02})`,
+                 o: d === 0 ? 1 : 0, z: 100 - ad, f: 'none' };
+      }
+      const x   = sign * (cap === 0 ? 0 : 46 + (cap - 1) * 22);   // fan spread
+      const y   = cap * cap * 8;                                  // edges dip → arc
+      const rot = sign * cap * 5;                                 // tilt like fanned paper
+      const sc  = 1 - cap * 0.05;
+      const o   = ad === 0 ? 1 : ad === 1 ? 0.5 : ad === 2 ? 0.26 : 0.13;
+      const f   = ad === 0 ? 'none' : `brightness(${(1 - cap * 0.16).toFixed(3)}) blur(${cap * 2.6}px)`;  // out-of-focus depth
+      return { t: `translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${sc})`, o, z: 100 - ad, f };
+    }
+    function render() {
+      papers.forEach((p, k) => {
+        const s = place(k - cur);             // finite stack — no wraparound
+        p.style.transform = s.t;
+        p.style.opacity   = String(s.o);
+        p.style.zIndex    = String(s.z);
+        p.style.filter    = s.f;
+        p.classList.toggle('is-front', k === cur);
+      });
+    }
+    function resizeHeight() {
+      const h = papers[cur].offsetHeight;
+      deck.style.height = h + 'px';
+      stage.style.height = h + 'px';
+    }
+    function playTrace(face) {                 // replay the reasoning-trace draw-in
+      const w = face && face.querySelector('.trace-wrap');
+      if (!w) return;
+      w.classList.remove('play'); void w.offsetWidth; w.classList.add('play');
+    }
+    function setArrows() {
+      const atStart = cur === 0, atEnd = cur === N - 1;
+      ['prevD','prevM'].forEach(id => { const b = $(id); if (b) { b.style.opacity = atStart ? '0.3' : ''; b.style.pointerEvents = atStart ? 'none' : ''; } });
+      ['nextD','nextM'].forEach(id => { const b = $(id); if (b) { b.style.opacity = atEnd ? '0.3' : ''; b.style.pointerEvents = atEnd ? 'none' : ''; } });
+    }
+    function updateChrome() {
+      $('cur').textContent = String(cur + 1).padStart(2, '0');
+      $('dots').innerHTML = JOBS.map((_, k) =>
+        `<button data-dot="${k}" class="dot rounded-full ${k===cur ? 'w-5 h-1.5 bg-accent-500' : 'w-1.5 h-1.5 bg-zinc-700 hover:bg-zinc-500'}" aria-label="${k+1}번째"></button>`
+      ).join('');
+      setArrows();
+    }
+    function layout() { render(); resizeHeight(); }
+    function afterNav() { render(); updateChrome(); resizeHeight(); playTrace(papers[cur]); }
+    function step(dir) {
+      const t = Math.min(N - 1, Math.max(0, cur + dir));
+      if (t === cur) return;
+      cur = t; afterNav();
+    }
+    function goTo(t) {
+      t = Math.min(N - 1, Math.max(0, t));
+      if (t === cur) return;
+      cur = t; afterNav();
+    }
+
+    function paintFB(idx) {
+      const sec = papers[idx], st = fb[idx];
+      const up = sec.querySelector('[data-fb="up"]'), down = sec.querySelector('[data-fb="down"]');
+      up.className = 'fb-btn w-10 h-10 rounded-lg flex items-center justify-center ' + (st === 'up' ? 'text-accent-400 bg-accent-500/15' : 'text-zinc-500 hover:text-accent-400');
+      down.className = 'fb-btn w-10 h-10 rounded-lg flex items-center justify-center ' + (st === 'down' ? 'text-rose-400 bg-rose-500/15' : 'text-zinc-500 hover:text-rose-400');
+      sec.querySelector('.fbLabel').innerHTML = st === 'up'
+        ? '<span class="text-accent-400">네, 비슷한 공고를 더 찾아 보고드릴게요</span>'
+        : st === 'down' ? '<span class="text-accent-400">알겠습니다, 다음부터 줄이겠습니다</span>'
+        : '이 추천, 어떤가요?';
+    }
+
+    function chromeShow() { document.querySelectorAll('.chrome').forEach(el => el.classList.add('show')); }
+
+    // events
+    $('total').textContent = String(N).padStart(2, '0');
+    ['prevD','prevM'].forEach(id => $(id).onclick = () => step(-1));
+    ['nextD','nextM'].forEach(id => $(id).onclick = () => step(1));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft')  step(-1);
+      if (e.key === 'ArrowRight') step(1);
+    });
+    $('dots').addEventListener('click', e => {
+      const d = e.target.closest('[data-dot]'); if (d) goTo(+d.dataset.dot);
+    });
+    document.addEventListener('click', e => {        // tabs
+      const t = e.target.closest('[data-tab]'); if (!t) return;
+      const sec = papers[+t.dataset.idx], name = t.dataset.tab;
+      sec.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('tab-on', b.dataset.tab === name));
+      sec.querySelectorAll('[data-panel]').forEach(p => { p.hidden = (p.dataset.panel !== name); });
+      if (name === 'brief') playTrace(sec);
+      resizeHeight();
+    });
+    document.addEventListener('click', e => {        // feedback
+      const b = e.target.closest('[data-fb]'); if (!b) return;
+      const idx = +b.dataset.idx;
+      fb[idx] = (fb[idx] === b.dataset.fb) ? null : b.dataset.fb;
+      paintFB(idx);
+    });
+
+    // swipe
+    let x0 = null;
+    stage.addEventListener('touchstart', e => x0 = e.touches[0].clientX, {passive:true});
+    stage.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+      x0 = null;
+    });
+
+    window.addEventListener('resize', layout);
+    window.addEventListener('load', () => setTimeout(layout, 50));
+
+    // initial build — closed bundle
+    layout(); updateChrome();
+    setTimeout(layout, 300);
+
+    // ── intro / loading → the assistant fans the bundle open ──
+    (function intro() {
+      const introEl = $('intro');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) {
+        opened = true; render(); resizeHeight();
+        if (introEl) introEl.remove();
+        stage.classList.add('show'); chromeShow();
+        playTrace(papers[cur]);
+        return;
+      }
+      setTimeout(() => {
+        if (introEl) introEl.classList.add('gone');
+        stage.classList.add('show'); chromeShow();
+        opened = true; render(); resizeHeight();          // fan the papers open
+        setTimeout(() => playTrace(papers[cur]), 850);     // then draw the trace
+      }, 2400);
+      setTimeout(() => { if (introEl) introEl.remove(); }, 3500);
+    })();
+  </script>
+</body>
+</html>

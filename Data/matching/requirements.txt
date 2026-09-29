@@ -1,0 +1,6 @@
+# 매칭 엔진(reco). 임베딩은 로컬 ONNX(fastembed) — API 키 불필요.
+fastembed>=0.3
+numpy>=1.24
+psycopg2-binary>=2.9
+# LLM 최종 선별은 stdlib(urllib)로 Anthropic API 호출 → 별도 SDK 불필요.
+# 실행 시 ANTHROPIC_API_KEY(선별용) + DATABASE_URL(pgvector) 환경변수 사용.

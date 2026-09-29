@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 로컬 시크릿 (.env.example 는 커밋)
+.env
+
+# 추출 산출물(재생성 가능) — database/data 의 커밋 데이터는 제외 안 함
+extractor/scripts/out/
+*.bak
+
+# 매칭 산출물(재생성 가능) — matching/examples 의 대표 결과는 제외 안 함
+# 스크립트는 engine/ 에서 실행 → 생성물이 engine/ 에 쌓임 (루트 실행분도 대비)
+matching/engine/embeddings.npy
+matching/engine/meta.jsonl
+matching/engine/candidates_*.json
+matching/engine/reco_*.json
+matching/engine/select_prompt_*.txt
+matching/candidates_*.json
+matching/reco_*.json
+matching/select_prompt_*.txt
+
+# 툴링 세션 상태(하네스) — 절대 커밋 금지
+.omc/
+
+# OS/에디터
+.DS_Store

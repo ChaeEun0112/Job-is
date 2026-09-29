@@ -1,0 +1,202 @@
+{
+  "generated_at": "2026-06-21T05:02:05.236Z",
+  "count": 28,
+  "documents": [
+    {
+      "title": "서비스 정의(핵심기능과 서비스 비전)",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80d6-a8d9-fe2042919f80",
+      "url": "https://app.notion.com/p/3632e0416c2080d6a8d9fe2042919f80",
+      "path": "Job.is/개요/서비스-정의(핵심기능과-서비스-비전).md"
+    },
+    {
+      "title": "성과지표",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80ce-b863-f08b2bde9856",
+      "url": "https://app.notion.com/p/3632e0416c2080ceb863f08b2bde9856",
+      "path": "Job.is/개요/성과지표.md"
+    },
+    {
+      "title": "프로젝트명",
+      "type": "page",
+      "notion_id": "3632e041-6c20-801c-849e-e2fe42c00365",
+      "url": "https://app.notion.com/p/3632e0416c20801c849ee2fe42c00365",
+      "path": "Job.is/개요/프로젝트명.md"
+    },
+    {
+      "title": "가설 검증 지표",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80d6-a556-f7ea0cedcc2e",
+      "url": "https://app.notion.com/p/3632e0416c2080d6a556f7ea0cedcc2e",
+      "path": "Job.is/기회 및 임팩트 예측/가설-검증-지표.md"
+    },
+    {
+      "title": "기회",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80a5-a038-fb588e32ba53",
+      "url": "https://app.notion.com/p/3632e0416c2080a5a038fb588e32ba53",
+      "path": "Job.is/기회 및 임팩트 예측/기회.md"
+    },
+    {
+      "title": "예상되는 사용자 행동(가설) ",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8078-9926-d23c79318605",
+      "url": "https://app.notion.com/p/3632e0416c2080789926d23c79318605",
+      "path": "Job.is/기회 및 임팩트 예측/예상되는-사용자-행동(가설).md"
+    },
+    {
+      "title": "임팩트 예측",
+      "type": "page",
+      "notion_id": "3632e041-6c20-807f-8d58-eefa0640b79f",
+      "url": "https://app.notion.com/p/3632e0416c20807f8d58eefa0640b79f",
+      "path": "Job.is/기회 및 임팩트 예측/임팩트-예측.md"
+    },
+    {
+      "title": "기능 정의서",
+      "type": "page",
+      "notion_id": "3642e041-6c20-80d1-9155-e5cd83e443ab",
+      "url": "https://app.notion.com/p/3642e0416c2080d19155e5cd83e443ab",
+      "path": "Job.is/기획구체화/기능-정의서.md"
+    },
+    {
+      "title": "데이터 처리 방식",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80f9-a4d6-cb15ce8c15f8",
+      "url": "https://app.notion.com/p/3632e0416c2080f9a4d6cb15ce8c15f8",
+      "path": "Job.is/기획구체화/데이터-처리-방식.md"
+    },
+    {
+      "title": "서비스 정책",
+      "type": "page",
+      "notion_id": "3642e041-6c20-8052-a549-d102f697ac65",
+      "url": "https://app.notion.com/p/3642e0416c208052a549d102f697ac65",
+      "path": "Job.is/기획구체화/서비스-정책.md"
+    },
+    {
+      "title": "요구사항 정의서(PRD)",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8026-abfe-d4275c4c8db4",
+      "url": "https://app.notion.com/p/PRD-3632e0416c208026abfed4275c4c8db4",
+      "path": "Job.is/기획구체화/요구사항-정의서(PRD).md"
+    },
+    {
+      "title": "UX 전략",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8011-ac88-d1ed46e6e399",
+      "url": "https://app.notion.com/p/UX-3632e0416c208011ac88d1ed46e6e399",
+      "path": "Job.is/기획구체화/UX-전략/index.md"
+    },
+    {
+      "title": "UI 전략",
+      "type": "page",
+      "notion_id": "3642e041-6c20-8040-a585-cbca73c7f164",
+      "url": "https://app.notion.com/p/UI-3642e0416c208040a585cbca73c7f164",
+      "path": "Job.is/기획구체화/UX-전략/UI-전략.md"
+    },
+    {
+      "title": "동종업 5개 플랫폼 선정",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80e4-8ee8-e79170dd55eb",
+      "url": "https://app.notion.com/p/5-3632e0416c2080e48ee8e79170dd55eb",
+      "path": "Job.is/발견 및 정의/경쟁사-포지셔닝/동종업-5개-플랫폼-선정.md"
+    },
+    {
+      "title": "벤치마킹 맵",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8056-841a-db5b3dec1ce3",
+      "url": "https://app.notion.com/p/3632e0416c208056841adb5b3dec1ce3",
+      "path": "Job.is/발견 및 정의/경쟁사-포지셔닝/벤치마킹-맵.md"
+    },
+    {
+      "title": "포지셔닝 맵",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80f3-a549-c24ab5703672",
+      "url": "https://app.notion.com/p/3632e0416c2080f3a549c24ab5703672",
+      "path": "Job.is/발견 및 정의/경쟁사-포지셔닝/포지셔닝-맵.md"
+    },
+    {
+      "title": "경쟁사 포지셔닝",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80f4-8255-dd54b1addd38",
+      "url": "https://app.notion.com/p/3632e0416c2080f48255dd54b1addd38",
+      "path": "Job.is/발견 및 정의/경쟁사-포지셔닝/index.md"
+    },
+    {
+      "title": "목적(Why) 및 배경(BackGround)",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80cc-ab03-f7edde2d4d89",
+      "url": "https://app.notion.com/p/Why-BackGround-3632e0416c2080ccab03f7edde2d4d89",
+      "path": "Job.is/발견 및 정의/목적(Why)-및-배경(BackGround).md"
+    },
+    {
+      "title": "문제 정의",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8023-b4d5-e11bc6355080",
+      "url": "https://app.notion.com/p/3632e0416c208023b4d5e11bc6355080",
+      "path": "Job.is/발견 및 정의/문제-정의.md"
+    },
+    {
+      "title": "사용자 가치",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80c9-a6e6-dd9917e61a0d",
+      "url": "https://app.notion.com/p/3632e0416c2080c9a6e6dd9917e61a0d",
+      "path": "Job.is/발견 및 정의/사용자-가치.md"
+    },
+    {
+      "title": "주요 사용자(Target User)",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8015-8ce3-fc7134cc6a4e",
+      "url": "https://app.notion.com/p/Target-User-3632e0416c2080158ce3fc7134cc6a4e",
+      "path": "Job.is/발견 및 정의/주요-사용자(Target-User)/index.md"
+    },
+    {
+      "title": "Target",
+      "type": "page",
+      "notion_id": "3632e041-6c20-802f-953b-cab95ce3212d",
+      "url": "https://app.notion.com/p/Target-3632e0416c20802f953bcab95ce3212d",
+      "path": "Job.is/발견 및 정의/주요-사용자(Target-User)/Target.md"
+    },
+    {
+      "title": "Persona / User Journey Map ",
+      "type": "page",
+      "notion_id": "3642e041-6c20-8030-9331-cf75874d4038",
+      "url": "https://app.notion.com/p/Persona-User-Journey-Map-3642e0416c2080309331cf75874d4038",
+      "path": "Job.is/발견 및 정의/Persona-User-Journey-Map/index.md"
+    },
+    {
+      "title": "Persona",
+      "type": "page",
+      "notion_id": "3642e041-6c20-8052-8d8a-f65f9fa9c706",
+      "url": "https://app.notion.com/p/Persona-3642e0416c2080528d8af65f9fa9c706",
+      "path": "Job.is/발견 및 정의/Persona-User-Journey-Map/Persona.md"
+    },
+    {
+      "title": "User Journey Map",
+      "type": "page",
+      "notion_id": "3642e041-6c20-80f3-bd04-f95af6ef8f6c",
+      "url": "https://app.notion.com/p/User-Journey-Map-3642e0416c2080f3bd04f95af6ef8f6c",
+      "path": "Job.is/발견 및 정의/Persona-User-Journey-Map/User-Journey-Map.md"
+    },
+    {
+      "title": "정보구조도(IA)",
+      "type": "page",
+      "notion_id": "3632e041-6c20-80cf-a910-fde1dfcfd9ed",
+      "url": "https://app.notion.com/p/IA-3632e0416c2080cfa910fde1dfcfd9ed",
+      "path": "Job.is/서비스 구조화/정보구조도(IA).md"
+    },
+    {
+      "title": "Flow Chart",
+      "type": "page",
+      "notion_id": "3632e041-6c20-8080-91e1-f57680385235",
+      "url": "https://app.notion.com/p/Flow-Chart-3632e0416c20808091e1f57680385235",
+      "path": "Job.is/서비스 구조화/Flow-Chart.md"
+    },
+    {
+      "title": "WireFrame",
+      "type": "page",
+      "notion_id": "3632e041-6c20-807a-869e-fdc04430da45",
+      "url": "https://app.notion.com/p/WireFrame-3632e0416c20807a869efdc04430da45",
+      "path": "Job.is/서비스 구조화/WireFrame.md"
+    }
+  ]
+}

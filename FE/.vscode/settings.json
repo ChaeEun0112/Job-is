@@ -1,0 +1,66 @@
+{
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/pnpm-lock.yaml": true
+  },
+  "files.eol": "\n",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+  "tailwindCSS.classFunctions": ["cn"],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "npm.packageManager": "pnpm",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "todohighlight.keywords": [
+    {
+      "text": "NOTE",
+      "color": "#ffffff",
+      "backgroundColor": "#FF7F00",
+      "overviewRulerColor": "#FF7F00"
+    },
+    {
+      "text": "BUG",
+      "color": "#ffffff",
+      "backgroundColor": "#F44336",
+      "overviewRulerColor": "#F44336"
+    },
+    {
+      "text": "INFO",
+      "color": "#ffffff",
+      "backgroundColor": "#2196F3",
+      "overviewRulerColor": "#2196F3"
+    },
+    {
+      "text": "OPTIMIZE",
+      "color": "#ffffff",
+      "backgroundColor": "#9C27B0",
+      "overviewRulerColor": "#9C27B0"
+    }
+  ]
+}

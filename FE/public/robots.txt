@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /oauth
+Disallow: /account
+Disallow: /unsubscribe
+Disallow: /system-error
+Disallow: /onboarding
+Disallow: /recommendations
+Disallow: /explore
+Disallow: /saved
+Disallow: /profile
+Disallow: /settings
+Disallow: /jobs

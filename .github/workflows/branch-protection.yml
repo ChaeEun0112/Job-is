@@ -1,0 +1,32 @@
+name: Branch Protection
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - edited
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Source Branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ensure main only accepts dev
+        if: ${{ github.event.pull_request.base.ref == 'main' }}
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [ "$HEAD_REF" != "dev" ]; then
+            echo "main branch only accepts pull requests from dev."
+            echo "Current source branch: $HEAD_REF"
+            exit 1
+          fi
